@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="120.5" cy="288.5" rx="30" ry="30"/>
+	<text x="100.5" y="294.5" font-family="Times New Roman" font-size="20">rest</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="330.5" cy="288.5" rx="30" ry="30"/>
+	<text x="315.5" y="294.5" font-family="Times New Roman" font-size="20">DT</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="475.5" cy="288.5" rx="30" ry="30"/>
+	<text x="447.5" y="294.5" font-family="Times New Roman" font-size="20">digits</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="614.5" cy="152.5" rx="30" ry="30"/>
+	<text x="586.5" y="158.5" font-family="Times New Roman" font-size="20">audio</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="374.5" cy="436.5" rx="30" ry="30"/>
+	<text x="350.5" y="442.5" font-family="Times New Roman" font-size="20">busy</text>
+	<ellipse stroke="black" stroke-width="1" fill="none" cx="614.5" cy="288.5" rx="30" ry="30"/>
+	<text x="586.5" y="294.5" font-family="Times New Roman" font-size="20">post7</text>
+	<polygon stroke="black" stroke-width="1" points="150.5,288.5 300.5,288.5"/>
+	<polygon fill="black" stroke-width="1" points="300.5,288.5 292.5,283.5 292.5,293.5"/>
+	<text x="187.5" y="279.5" font-family="Times New Roman" font-size="20">offhook</text>
+	<polygon stroke="black" stroke-width="1" points="360.5,288.5 445.5,288.5"/>
+	<polygon fill="black" stroke-width="1" points="445.5,288.5 437.5,283.5 437.5,293.5"/>
+	<text x="369.5" y="279.5" font-family="Times New Roman" font-size="20">button</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 128.966,259.733 A 292.503,292.503 0 0 1 592.503,132.12"/>
+	<polygon fill="black" stroke-width="1" points="128.966,259.733 136.333,253.84 126.898,250.529"/>
+	<text x="257.5" y="63.5" font-family="Times New Roman" font-size="20">onhook</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 306.416,306.311 A 157.056,157.056 0 0 1 144.584,306.311"/>
+	<polygon fill="black" stroke-width="1" points="144.584,306.311 148.865,314.717 154.017,306.147"/>
+	<text x="188.5" y="349.5" font-family="Times New Roman" font-size="20">onhook</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 140.541,266.206 A 225.7,225.7 0 0 1 455.459,266.206"/>
+	<polygon fill="black" stroke-width="1" points="140.541,266.206 149.761,264.207 142.784,257.042"/>
+	<text x="260.5" y="193.5" font-family="Times New Roman" font-size="20">onhook</text>
+	<polygon stroke="black" stroke-width="1" points="505.5,288.5 584.5,288.5"/>
+	<polygon fill="black" stroke-width="1" points="584.5,288.5 576.5,283.5 576.5,293.5"/>
+	<text x="523.5" y="279.5" font-family="Times New Roman" font-size="20">len7</text>
+	<polygon stroke="black" stroke-width="1" points="614.5,258.5 614.5,182.5"/>
+	<polygon fill="black" stroke-width="1" points="614.5,182.5 609.5,190.5 619.5,190.5"/>
+	<text x="619.5" y="226.5" font-family="Times New Roman" font-size="20">good #</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 603.757,316.484 A 213.331,213.331 0 0 1 404.328,439.465"/>
+	<polygon fill="black" stroke-width="1" points="404.328,439.465 412.181,444.693 412.469,434.697"/>
+	<text x="527.5" y="428.5" font-family="Times New Roman" font-size="20">bad #</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 344.746,440.151 A 223.751,223.751 0 0 1 131.995,316.186"/>
+	<polygon fill="black" stroke-width="1" points="131.995,316.186 131.071,325.575 140.029,321.13"/>
+	<text x="140.5" y="431.5" font-family="Times New Roman" font-size="20">onhook</text>
+	<path stroke="black" stroke-width="1" fill="none" d="M 134.317,261.888 A 270.94,270.94 0 0 1 600.683,261.888"/>
+	<polygon fill="black" stroke-width="1" points="134.317,261.888 142.694,257.549 134.087,252.457"/>
+	<text x="330.5" y="119.5" font-family="Times New Roman" font-size="20">onhook</text>
+</svg>
+
