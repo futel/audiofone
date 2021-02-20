@@ -10,11 +10,11 @@ raspberry pi
 
 # Install:
 
-update deploy/hosts for correct pibox ip address
-ansible-playbook -i deploy/hosts playbook.yml
+- update deploy/hosts for correct pibox ip address
+- ansible-playbook -i deploy/hosts playbook.yml
 
 # Test on pi:
 
-sudo /opt/futel/src/hookswitch.py
-watch stdout
-short gpio pin 7 to gpio ground
+- sudo /opt/futel/src/hookswitch.py
+- watch stdout
+- short gpio pin 7 to gpio ground
