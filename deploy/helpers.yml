@@ -1,0 +1,26 @@
+---
+- name: copy assets
+  copy:
+    src: src/opt/futel/src/dialtone.wav
+    dest: /opt/futel/src/dialtone.wav
+- name: copy script
+  copy:
+    src: src/opt/futel/src/hookswitch.py
+    dest: /opt/futel/src/hookswitch.py
+    owner: root
+    group: root
+- name: make script executable
+  file:
+    path: /opt/futel/src/hookswitch.py
+    mode: "u+x"
+# - name: set up supervisord conf
+#   copy:
+#     src: src/etc/supervisor/conf.d/futel.conf
+#     dest: /etc/supervisor/conf.d/futel.conf
+#     owner: root
+#     group: root
+# - name: enable and start supervisord
+#   service:
+#     name: supervisor
+#     enabled: yes    
+#     state: restarted

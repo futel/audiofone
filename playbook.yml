@@ -1,0 +1,8 @@
+---
+- hosts: pibox
+  become: true
+  tasks:
+    - include: deploy/ssh.yml  
+    - include: deploy/packages.yml
+    - include: deploy/filesystem.yml
+    - include: deploy/helpers.yml

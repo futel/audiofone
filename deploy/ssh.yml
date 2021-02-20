@@ -1,0 +1,6 @@
+---
+- name: Enable and start ssh service
+  ansible.builtin.systemd:
+    name: ssh
+    state: started
+    enabled: yes

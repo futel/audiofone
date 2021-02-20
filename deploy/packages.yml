@@ -1,0 +1,26 @@
+---
+- name: apt-get update
+  apt:
+    update_cache: yes
+- name: apt upgrade or something
+  apt:
+    upgrade: safe
+- name: install packages
+  apt:
+    name:
+      - python-rpi.gpio
+      - python3-rpi.gpio
+      - supervisor
+# - name: reboot
+#   shell:
+#     sleep 2 && reboot
+#   async: 1
+#   poll: 0
+#   ignore_errors: true
+# - name: wait for host to come back
+#   local_action:
+#     wait_for host={{ ansible_host }} port=22 state=started delay=10
+#   become: false
+# - name: XXX pause to wait for host to come back
+#   pause:
+#     minutes: 1
