@@ -6,7 +6,7 @@ Stand-alone phone audio interface.
 
 raspberry pi
 * running [Raspberry Pi OS lite](https://www.raspberrypi.org/software/operating-systems/)
-* ssh enabled with default pi/raspberry login
+* ssh enabled and accessible with default pi/raspberry login
  * can do this by touching ssh file on boot partition:
  * `touch /boot/ssh`
 * [sshpass](https://manpages.debian.org/stretch/sshpass/sshpass.1.en.html) so that ansible doesn't cry a lot
