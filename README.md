@@ -2,13 +2,16 @@
 
 Stand-alone phone audio interface.
 
-# Have:
+# Prerequisites:
 
 raspberry pi
 * running [Raspberry Pi OS lite](https://www.raspberrypi.org/software/operating-systems/)
 * ssh enabled with default pi/raspberry login
  * can do this by touching ssh file on boot partition:
  * `touch /boot/ssh`
+* [sshpass](https://manpages.debian.org/stretch/sshpass/sshpass.1.en.html) so that ansible doesn't cry a lot
+* pi network enabled and active
+ * on the pi3, run raspi-config and enable+config wifi
 
  ## ansible on the development host (your laptop)
 
