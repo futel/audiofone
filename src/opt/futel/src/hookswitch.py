@@ -1,46 +1,44 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import RPi.GPIO as GPIO
-import datetime
+from gpiozero import Button
+
 import subprocess
+import signal
 import sys
 import time
 
-PIN = 7
+hookswitch = Button(7)
 
-GPIO.setmode(GPIO.BCM)          # pin numbering?
-GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+audio_child = None
 
-hookswitch_up_state = False
+PLAY_DIALTONE_CMD = [
+    'aplay',
+    '/opt/futel/src/dialtone.wav']
 
 def log(line):
     print(line)
     sys.stdout.flush()
 
-def hookswitch_up():
-    """ Play dialtone, if not playing, and toggle state. """
-    global hookswitch_up_state
-    if hookswitch_up_state is False:
-        hookwitch_up_state = True
-        log("play_dialtone")
-
-def hookswitch_down():
-    """ Stop playing dialtone, if playing, and toggle state. """
-    global hookswitch_up_state
-    if hookswitch_up_state is True:
-        hookwitch_up_state = False
-        log("terminate_dialtone")
-
-def button_callback(channel):
-    if GPIO.input(PIN):
-        log("rising")         # release switch
-        hookswitch_down()
+def play_dialtone(channel):
+    """ Play dialtone if audio child is None. """
+    global audio_child
+    log("play dialtone")
+    if audio_child is None:
+        audio_child = subprocess.Popen(PLAY_DIALTONE_CMD)
     else:
-        log("falling")        # contact switch
-        hookswitch_up()
+        log("audio_child exists")
 
-GPIO.add_event_detect(PIN, GPIO.BOTH, callback=button_callback)
+def terminate_audio(channel):
+    """ Stop audio child if not None. """
+    global audio_child
+    log("terminate audio")
+    if audio_child is not None:
+        audio_child.terminate()
+    else:
+        log("no audio child to terminate")
+    audio_child = None
 
-while True:
-    log("cycle")
-    time.sleep(5)
+hookswitch.when_pressed = play_dialtone
+hookswitch.when_released = terminate_audio
+
+signal.pause()
