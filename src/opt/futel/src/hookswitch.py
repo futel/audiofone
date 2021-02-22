@@ -13,7 +13,7 @@ audio_child = None
 
 PLAY_DIALTONE_CMD = [
     'aplay',
-    '/opt/futel/src/dialtone.wav']
+    '/opt/futel/src/audio/dialtone.wav']
 
 def log(line):
     print(line)
