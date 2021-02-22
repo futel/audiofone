@@ -2,7 +2,7 @@
 - name: copy assets
   copy:
     src: src/opt/futel/src/audio/dialtone.wav
-    dest: /opt/futel/src/dialtone.wav
+    dest: /opt/futel/src/audio/dialtone.wav
 - name: copy script
   copy:
     src: src/opt/futel/src/hookswitch.py

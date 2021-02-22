@@ -10,6 +10,8 @@
     name:
       - python-rpi.gpio
       - python3-rpi.gpio
+      - python3-gpiozero
+      - python-gpiozero
       - supervisor
 # - name: reboot
 #   shell:

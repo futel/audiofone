@@ -7,6 +7,10 @@
   file:
     path: /opt/futel/src
     state: directory
+- name: make audio directory
+  file:
+    path: /opt/futel/src/audio
+    state: directory
 - name: make var directory
   file:
     path: /opt/futel/var
