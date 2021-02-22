@@ -19,7 +19,7 @@ def log(line):
     print(line)
     sys.stdout.flush()
 
-def play_dialtone(channel):
+def play_dialtone():
     """ Play dialtone if audio child is None. """
     global audio_child
     log("play dialtone")
@@ -28,7 +28,7 @@ def play_dialtone(channel):
     else:
         log("audio_child exists")
 
-def terminate_audio(channel):
+def terminate_audio():
     """ Stop audio child if not None. """
     global audio_child
     log("terminate audio")
