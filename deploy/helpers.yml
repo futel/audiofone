@@ -1,7 +1,7 @@
 ---
 - name: copy assets
   copy:
-    src: src/opt/futel/src/dialtone.wav
+    src: src/opt/futel/src/audio/dialtone.wav
     dest: /opt/futel/src/dialtone.wav
 - name: copy script
   copy:
@@ -22,5 +22,5 @@
 # - name: enable and start supervisord
 #   service:
 #     name: supervisor
-#     enabled: yes    
+#     enabled: yes
 #     state: restarted
