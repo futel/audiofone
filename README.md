@@ -4,7 +4,7 @@ Stand-alone phone audio interface.
 # Have:
 
 raspberry pi
-- running raspbian lite
+- running [Raspberry Pi OS lite](https://www.raspberrypi.org/software/operating-systems/)
 - ssh enabled with default pi/raspberry login
  - can do this by touching ssh file on boot partition
 
