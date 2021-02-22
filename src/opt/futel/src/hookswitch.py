@@ -23,6 +23,7 @@ def play_dialtone():
     """ Play dialtone if audio child is None. """
     global audio_child
     log("play dialtone")
+    terminate_audio()
     if audio_child is None:
         audio_child = subprocess.Popen(PLAY_DIALTONE_CMD)
     else:
