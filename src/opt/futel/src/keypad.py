@@ -30,14 +30,14 @@ class Keypad:
         GPIO.setup(PINS['row0'], GPIO.OUT)
         GPIO.setup(PINS['row1'], GPIO.OUT)
         GPIO.setup(PINS['row2'], GPIO.OUT)
-        # GPIO.setup(PINS['row3'], GPIO.OUT)
+        GPIO.setup(PINS['row3'], GPIO.OUT)
         GPIO.output(PINS['row0'], GPIO.HIGH)
         GPIO.output(PINS['row1'], GPIO.HIGH)
         GPIO.output(PINS['row2'], GPIO.HIGH)
-        # GPIO.output(PINS['row3'], GPIO.LOW)
+        GPIO.output(PINS['row3'], GPIO.HIGH)
         GPIO.setup(PINS['col0'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(PINS['col1'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        # GPIO.setup(PINS['col2'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(PINS['col2'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     def cancel(self):
         self._cancelled = True
@@ -75,7 +75,7 @@ class Keypad:
     def read_key(self):
         """ blocking/polling method that returns '' if cancelled or a key if seen """
         while(not self._cancelled):
-            for row in [0, 1, 2]:
+            for row in [0, 1, 2, 3]:
                 key = self._scan_row(row)
                 if self._cancelled : return ''
                 if key != '' : return key
@@ -98,18 +98,18 @@ class Keypad:
     #
     def _detect(self, row):
         GPIO.output(PINS['row%d' % (row)], GPIO.LOW)
-        time.sleep(0.050)   # for debugging, this should be like 5-25ms in practice
+        time.sleep(0.010)   # for debugging, this should be like 5-25ms in practice
         GPIO.output(PINS['row%d' % (row)], GPIO.HIGH)
         # TODO: Very much want to debounce, or at least wait until falling edge
         if GPIO.event_detected(PINS['col0']) : return DIGITS[row][0]
         if GPIO.event_detected(PINS['col1']) : return DIGITS[row][1]
-    #     if GPIO.event_detected(PINS['col2']) : return DIGITS[row][2]
+        if GPIO.event_detected(PINS['col2']) : return DIGITS[row][2]
         return ''
     #
     def _enable_detect(self):
         self._enable_safely(PINS['col0'])
         self._enable_safely(PINS['col1'])
-        # GPIO.add_event_detect(PINS['col2'], GPIO.FALLING)
+        self._enable_safely(PINS['col2'])
 
     def _enable_safely(self, pin):
         try:
@@ -121,15 +121,13 @@ class Keypad:
     def _remove_detect(self):
         GPIO.remove_event_detect(PINS['col0'])
         GPIO.remove_event_detect(PINS['col1'])
-    #     GPIO.remove_event_detect(PINS['col2'])
+        GPIO.remove_event_detect(PINS['col2'])
 
 
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BOARD)
     k = Keypad()
-    # GPIO.output(PINS['row0'], GPIO.HIGH)
     while(True):
         print("Waiting for a key")
-        # time.sleep(0.500)
         digit = k.read_key()
         print("Saw digit: %s" % (digit))
