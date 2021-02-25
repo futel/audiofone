@@ -46,3 +46,15 @@ echo enable_uart=1 >> /boot/config.txt
 * sudo /opt/futel/src/hookswitch.py
 * watch stdout
 * short gpio pin 7 to gpio ground
+
+# Hardware / Pinouts
+
+* GPIO  7 - pin26 - Hookswitch
+* GPIO 17 - pin11 - Input - keypad col 0
+* GPIO 27 - pin13 - Input - keypad col 1
+* GPIO 22 - pin15 - Input - keypad col 2
+* GPIO 12 - pin32 - Output - keypad row 0
+* GPIO 16 - pin36 - Output - keypad row 1
+* GPIO 20 - pin38 - Output - keypad row 2
+* GPIO 21 - pin40 - Output - keypad row 3
+* headphone jack -> earpiece audio
