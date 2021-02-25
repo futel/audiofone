@@ -29,11 +29,11 @@ class Keypad:
         # TODO: get all this shit out of the constructor
         GPIO.setup(PINS['row0'], GPIO.OUT)
         GPIO.setup(PINS['row1'], GPIO.OUT)
-        # GPIO.setup(PINS['row2'], GPIO.OUT)
+        GPIO.setup(PINS['row2'], GPIO.OUT)
         # GPIO.setup(PINS['row3'], GPIO.OUT)
         GPIO.output(PINS['row0'], GPIO.HIGH)
         GPIO.output(PINS['row1'], GPIO.HIGH)
-        # GPIO.output(PINS['row2'], GPIO.LOW)
+        GPIO.output(PINS['row2'], GPIO.HIGH)
         # GPIO.output(PINS['row3'], GPIO.LOW)
         GPIO.setup(PINS['col0'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(PINS['col1'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -75,8 +75,7 @@ class Keypad:
     def read_key(self):
         """ blocking/polling method that returns '' if cancelled or a key if seen """
         while(not self._cancelled):
-            # for row in [0,1,2,3]:
-            for row in [0, 1]:
+            for row in [0, 1, 2]:
                 key = self._scan_row(row)
                 if self._cancelled : return ''
                 if key != '' : return key
@@ -110,7 +109,6 @@ class Keypad:
     def _enable_detect(self):
         self._enable_safely(PINS['col0'])
         self._enable_safely(PINS['col1'])
-        # GPIO.add_event_detect(PINS['col1'], GPIO.FALLING)
         # GPIO.add_event_detect(PINS['col2'], GPIO.FALLING)
 
     def _enable_safely(self, pin):
@@ -123,7 +121,6 @@ class Keypad:
     def _remove_detect(self):
         GPIO.remove_event_detect(PINS['col0'])
         GPIO.remove_event_detect(PINS['col1'])
-    #     GPIO.remove_event_detect(PINS['col1'])
     #     GPIO.remove_event_detect(PINS['col2'])
 
 
