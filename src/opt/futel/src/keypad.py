@@ -36,7 +36,7 @@ class Keypad:
         # GPIO.output(PINS['row2'], GPIO.LOW)
         # GPIO.output(PINS['row3'], GPIO.LOW)
         GPIO.setup(PINS['col0'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        # GPIO.setup(PINS['col1'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(PINS['col1'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
         # GPIO.setup(PINS['col2'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     def cancel(self):
@@ -75,7 +75,8 @@ class Keypad:
     def read_key(self):
         """ blocking/polling method that returns '' if cancelled or a key if seen """
         while(not self._cancelled):
-            for row in [0,1,2,3]:
+            # for row in [0,1,2,3]:
+            for row in [0, 1]:
                 key = self._scan_row(row)
                 if self._cancelled : return ''
                 if key != '' : return key
@@ -98,20 +99,30 @@ class Keypad:
     #
     def _detect(self, row):
         GPIO.output(PINS['row%d' % (row)], GPIO.LOW)
-        time.sleep(0.250)   # for debugging, this should be like 5-25ms in practice
+        time.sleep(0.050)   # for debugging, this should be like 5-25ms in practice
         GPIO.output(PINS['row%d' % (row)], GPIO.HIGH)
         # TODO: Very much want to debounce, or at least wait until falling edge
         if GPIO.event_detected(PINS['col0']) : return DIGITS[row][0]
-    #     if GPIO.event_detected(PINS['col1']) : return DIGITS[row][1]
+        if GPIO.event_detected(PINS['col1']) : return DIGITS[row][1]
     #     if GPIO.event_detected(PINS['col2']) : return DIGITS[row][2]
         return ''
     #
     def _enable_detect(self):
-        GPIO.add_event_detect(PINS['col0'], GPIO.BOTH)
+        self._enable_safely(PINS['col0'])
+        self._enable_safely(PINS['col1'])
         # GPIO.add_event_detect(PINS['col1'], GPIO.FALLING)
         # GPIO.add_event_detect(PINS['col2'], GPIO.FALLING)
+
+    def _enable_safely(self, pin):
+        try:
+            GPIO.add_event_detect(pin, GPIO.BOTH)
+        except:
+            print("Shit failed, just trying again because fuck it")
+            GPIO.add_event_detect(pin, GPIO.BOTH)
+
     def _remove_detect(self):
         GPIO.remove_event_detect(PINS['col0'])
+        GPIO.remove_event_detect(PINS['col1'])
     #     GPIO.remove_event_detect(PINS['col1'])
     #     GPIO.remove_event_detect(PINS['col2'])
 
