@@ -74,6 +74,8 @@ class Keypad:
 
     def read_key(self):
         """ blocking/polling method that returns '' if cancelled or a key if seen """
+        self._remove_detect()
+        self._enable_detect()
         while(not self._cancelled):
             for row in [0, 1, 2, 3]:
                 key = self._scan_row(row)
@@ -90,18 +92,19 @@ class Keypad:
     #
     #
     def _scan_row(self, row):
-        self._enable_detect()
+        # self._enable_detect()
         key = self._detect(row)
-        self._remove_detect()
+        # self._remove_detect()
         return key
-    #
-    #
+
     def _detect(self, row):
         GPIO.output(PINS['row%d' % (row)], GPIO.LOW)
-        time.sleep(0.010)   # for debugging, this should be like 5-25ms in practice
+        time.sleep(0.025)   # for debugging, this should be like 5-25ms in practice
         GPIO.output(PINS['row%d' % (row)], GPIO.HIGH)
         # TODO: Very much want to debounce, or at least wait until falling edge
-        if GPIO.event_detected(PINS['col0']) : return DIGITS[row][0]
+        if GPIO.event_detected(PINS['col0']) :
+            print("updown %d" % (GPIO.input(PINS['col0'])))
+            return DIGITS[row][0]
         if GPIO.event_detected(PINS['col1']) : return DIGITS[row][1]
         if GPIO.event_detected(PINS['col2']) : return DIGITS[row][2]
         return ''
@@ -115,7 +118,7 @@ class Keypad:
         try:
             GPIO.add_event_detect(pin, GPIO.BOTH)
         except:
-            print("Shit failed, just trying again because fuck it")
+            print("Configuring pin detect failed, trying again.")
             GPIO.add_event_detect(pin, GPIO.BOTH)
 
     def _remove_detect(self):
