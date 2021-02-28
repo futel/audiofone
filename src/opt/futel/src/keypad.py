@@ -53,17 +53,12 @@ class Keypad:
                 for col in [0, 1, 2]:
                     colpin = PINS['col%d' % (col)]
                     if(GPIO.event_detected(colpin)):
-                        print("down %d" % (col))
+                        key_name = DIGITS[row][col]
+                        print("down %s" % (key_name)
                         while(not GPIO.event_detected(colpin)):
                             print("still down %d" % (col))
                             time.sleep(0.025)
-                        return DIGITS[row][col]
-
-                # elif(GPIO.event_detected(PINS['col1'])):
-                #     print("down 1")
-                # elif(GPIO.event_detected(PINS['col2'])):
-                #     print("down 2")
-                # else:
+                        return key_name
                 GPIO.output(rowpin, GPIO.HIGH)
 
 
