@@ -2,7 +2,7 @@
 import time
 import RPi.GPIO as GPIO
 
-# row scan, column callbacks
+# row scan, column detects
 
 PINS = {
     'row0': 32, # GPIO 12
@@ -22,19 +22,15 @@ DIGITS = [
 
 class Keypad:
 
-    def __init__(self):
+    def __init__(self, on_keydown):
         self._cancelled = False
-        self._current_row = -1
-        self._keydown = False
+        self._on_keydown = on_keydown
         # TODO: get all this shit out of the constructor
         GPIO.setup(PINS['row0'], GPIO.OUT)
         GPIO.setup(PINS['row1'], GPIO.OUT)
         GPIO.setup(PINS['row2'], GPIO.OUT)
         GPIO.setup(PINS['row3'], GPIO.OUT)
-        GPIO.output(PINS['row0'], GPIO.HIGH)
-        GPIO.output(PINS['row1'], GPIO.HIGH)
-        GPIO.output(PINS['row2'], GPIO.HIGH)
-        GPIO.output(PINS['row3'], GPIO.HIGH)
+        self._all_rows_high()
         GPIO.setup(PINS['col0'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(PINS['col1'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(PINS['col2'], GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -43,6 +39,7 @@ class Keypad:
         self._cancelled = True
 
     def read_key(self):
+        self._all_rows_high()
         self._remove_detect()
         self._enable_detect(GPIO.BOTH)
         while(not self._cancelled):
@@ -54,13 +51,17 @@ class Keypad:
                     colpin = PINS['col%d' % (col)]
                     if(GPIO.event_detected(colpin)):
                         key_name = DIGITS[row][col]
-                        print("down %s" % (key_name))
+
+                        self._on_keydown(key_name)  # Invoke keydown callback
+
                         while(not GPIO.event_detected(colpin)):
                             if GPIO.input(colpin) == 1: break
+                            if(self._cancelled): return ''
                             # print("DEBUG still down %s" % (key_name))
                             time.sleep(0.025)
                         return key_name
                 GPIO.output(rowpin, GPIO.HIGH)
+        return '' # cancelled
 
     def _enable_detect(self, direction):
         self._enable_safely(PINS['col0'], direction)
@@ -79,11 +80,18 @@ class Keypad:
         GPIO.remove_event_detect(PINS['col1'])
         GPIO.remove_event_detect(PINS['col2'])
 
+    def _all_rows_high(self):
+        GPIO.output(PINS['row0'], GPIO.HIGH)
+        GPIO.output(PINS['row1'], GPIO.HIGH)
+        GPIO.output(PINS['row2'], GPIO.HIGH)
+        GPIO.output(PINS['row3'], GPIO.HIGH)
 
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BOARD)
-    k = Keypad()
+    def on_keydown(key_name):
+        print("down %s" % (key_name))
+    k = Keypad(on_keydown)
     while(True):
-        print("Waiting for a key")
+        print("Waiting for a key...")
         digit = k.read_key()
         print("Saw key: %s" % (digit))
