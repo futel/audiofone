@@ -9,6 +9,12 @@
     dest: /opt/futel/src/hookswitch.py
     owner: root
     group: root
+- name: copy tones
+  copy:
+    src: src/opt/futel/src/tones.py
+    dest: /opt/futel/src/tone.py
+    owner: root
+    group: root
 - name: copy keypad
   copy:
     src: src/opt/futel/src/keypad.py
