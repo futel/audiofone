@@ -3,10 +3,16 @@
   copy:
     src: src/opt/futel/src/audio/dialtone.wav
     dest: /opt/futel/src/audio/dialtone.wav
-- name: copy script
+- name: copy hookswitch
   copy:
     src: src/opt/futel/src/hookswitch.py
     dest: /opt/futel/src/hookswitch.py
+    owner: root
+    group: root
+- name: copy keypad
+  copy:
+    src: src/opt/futel/src/keypad.py
+    dest: /opt/futel/src/keypad.py
     owner: root
     group: root
 - name: make script executable
