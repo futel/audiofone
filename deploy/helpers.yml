@@ -3,10 +3,24 @@
   copy:
     src: src/opt/futel/src/audio/dialtone.wav
     dest: /opt/futel/src/audio/dialtone.wav
+- name: copy pd dir
+  copy:
+    src: src/opt/futel/src/pd/
+    dest: /opt/futel/src/pd/
+- name: make pd start script runnable
+  file:
+    path: /opt/futel/src/pd/run-pd.sh
+    mode: "u+x"
 - name: copy hookswitch
   copy:
     src: src/opt/futel/src/hookswitch.py
     dest: /opt/futel/src/hookswitch.py
+    owner: root
+    group: root
+- name: copy tones
+  copy:
+    src: src/opt/futel/src/tones.py
+    dest: /opt/futel/src/tone.py
     owner: root
     group: root
 - name: copy keypad

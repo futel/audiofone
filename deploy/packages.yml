@@ -12,7 +12,14 @@
       - python3-rpi.gpio
       - python3-gpiozero
       - python-gpiozero
+      - python-pip
+      - python3-pip
       - supervisor
+      - puredata
+- name: additional python packages
+  shell:
+    python3 -m pip install python-osc
+
 # - name: reboot
 #   shell:
 #     sleep 2 && reboot
