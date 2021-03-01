@@ -27,8 +27,10 @@ keypad = Keypad(on_keydown)
 
 def on_handset_pickup():
     global hookstate
+    global dialed_number
     print("Off hook")
     hookstate = 'off'
+    dialed_number = ''
     tones.dialtone()
 
 def on_hangup():
