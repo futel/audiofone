@@ -15,6 +15,7 @@
       - python-pip
       - python3-pip
       - supervisor
+      - puredata
 - name: additional python packages
   shell:
     python3 -m pip install python-osc

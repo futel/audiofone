@@ -62,6 +62,7 @@ echo enable_uart=1 >> /boot/config.txt
 # pd patch
 
 listens on port 6066 for osc messages.
+There is a run script in the pd directory, but it basically does this:
 
 ```
 pd -alsa -send "pd dsp 1" -nogui pd/tones.pd
