@@ -39,6 +39,7 @@ class Keypad:
         self._cancelled = True
 
     def read_key(self):
+        self._cancelled = False
         self._all_rows_high()
         self._remove_detect()
         self._enable_detect(GPIO.BOTH)
