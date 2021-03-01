@@ -12,6 +12,9 @@ class Tones:
     def off(self):
         self.client.send_message('/off', '')
 
+    def busy(self):
+        self.client.send_message('/busy', '')
+
     def key(self, key):
         if key in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
             key = int(key)
