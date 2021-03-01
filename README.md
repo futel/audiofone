@@ -58,3 +58,11 @@ echo enable_uart=1 >> /boot/config.txt
 * GPIO 20 - pin38 - Output - keypad row 2
 * GPIO 21 - pin40 - Output - keypad row 3
 * headphone jack -> earpiece audio
+
+# pd patch
+
+listens on port 6066 for osc messages.
+
+```
+pd -alsa -send "pd dsp 1" -nogui pd/tones.pd
+```
