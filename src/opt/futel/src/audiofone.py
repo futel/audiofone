@@ -10,11 +10,15 @@ import time
 
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
+hookstate = 'on'
+dialed_number = ''
 
 tones = Tones()
 tones.off()
 
 def on_keydown(key):
+    global hookstate
+    if(hookstate == 'on'): return
     print("KEYDOWN %s" % (key))
     tones.off()
     tones.key(key)
@@ -22,11 +26,15 @@ def on_keydown(key):
 keypad = Keypad(on_keydown)
 
 def on_handset_pickup():
+    global hookstate
     print("Off hook")
+    hookstate = 'off'
     tones.dialtone()
 
 def on_hangup():
+    global hookstate
     print("Hangup")
+    hookstate = 'on'
     tones.off()
     keypad.cancel()
 
@@ -39,3 +47,8 @@ while(True):
     k = keypad.read_key()
     print(">> Key released => %s" %(k))
     tones.off()
+    if(hookstate == 'off'):
+        dialed_number = dialed_number + k
+        if(len(dialed_number) == 7):
+            print("*** YOU DID IT! %s" % (dialed_number))
+            dialed_number = ''
