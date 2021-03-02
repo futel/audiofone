@@ -77,6 +77,9 @@ hookswitch.run()
 
 while(True):
     k = keypad.read_key()
+    if(k == ''):
+        print("key read cancelled")
+        continue
     print(">> Key released => %s" %(k))
     if not hookstate == 'busy wait': tones.off()
     if(hookstate == 'off'):
