@@ -15,32 +15,27 @@
   copy:
     src: src/opt/futel/src/hookswitch.py
     dest: /opt/futel/src/hookswitch.py
-    owner: root
-    group: root
+    owner: pi
+    group: pi
 - name: copy tones
   copy:
     src: src/opt/futel/src/tones.py
-    dest: /opt/futel/src/tone.py
-    owner: root
-    group: root
+    dest: /opt/futel/src/tones.py
+    owner: pi
+    group: pi
 - name: copy keypad
   copy:
     src: src/opt/futel/src/keypad.py
     dest: /opt/futel/src/keypad.py
-    owner: root
-    group: root
+    owner: pi
+    group: pi
+- name: copy audiofone
+  copy:
+    src: src/opt/futel/src/audiofone.py
+    dest: /opt/futel/src/audiofone.py
+    owner: pi
+    group: pi
 - name: make script executable
   file:
     path: /opt/futel/src/hookswitch.py
     mode: "u+x"
-# - name: set up supervisord conf
-#   copy:
-#     src: src/etc/supervisor/conf.d/futel.conf
-#     dest: /etc/supervisor/conf.d/futel.conf
-#     owner: root
-#     group: root
-# - name: enable and start supervisord
-#   service:
-#     name: supervisor
-#     enabled: yes
-#     state: restarted
