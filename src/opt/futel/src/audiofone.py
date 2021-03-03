@@ -86,4 +86,5 @@ while(True):
         dialed_number = dialed_number + k
         if(len(dialed_number) == 7):
             print("*** YOU DID IT! %s" % (dialed_number))
+            tones.ring()
             dialed_number = ''
