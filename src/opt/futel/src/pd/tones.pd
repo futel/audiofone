@@ -1,6 +1,6 @@
 #N canvas 607 148 1331 837 12;
 #X obj 338 351 dac~;
-#N canvas 1969 177 1078 953 tones 1;
+#N canvas 1969 177 1078 953 tones 0;
 #X obj 31 9 inlet;
 #X obj 96 317 dtmf~;
 #X obj 158 411 outlet~;
@@ -96,7 +96,7 @@
 #X connect 19 0 18 1;
 #X restore 349 246 pd busy;
 #X obj 169 114 select off dialtone busy ring;
-#N canvas 2607 989 806 850 dialtone 1;
+#N canvas 2607 989 806 850 dialtone 0;
 #X obj 97 289 outlet~;
 #X obj 97 38 inlet;
 #X obj 148 40 inlet;
