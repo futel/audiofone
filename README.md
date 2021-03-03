@@ -61,9 +61,9 @@ echo enable_uart=1 >> /boot/config.txt
 
 # pd patch
 
-listens on port 6066 for osc messages.
-There is a run script in the pd directory, but it basically does this:
+Audio is played through pd.  Python just commands it through
+OSC (open sound control) messages over local UDP.
 
-```
-pd -alsa -send "pd dsp 1" -nogui pd/tones.pd
-```
+listens on port 6066 for osc messages.
+It is run from supervisord, you can steal the command
+from `src/etc/supervisor/conf.d/puredata.conf`.
