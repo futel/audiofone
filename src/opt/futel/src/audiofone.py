@@ -88,3 +88,4 @@ while(True):
             print("*** YOU DID IT! %s" % (dialed_number))
             tones.ring()
             dialed_number = ''
+            start_busy_timer()
