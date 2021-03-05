@@ -19,13 +19,13 @@
     dest: /opt/futel/src/tones.py
     owner: pi
     group: pi
-- name: copy keypad
+- name: copy keypad script
   copy:
     src: src/opt/futel/src/keypad.py
     dest: /opt/futel/src/keypad.py
     owner: pi
     group: pi
-- name: copy audiofone
+- name: copy audiofone script
   copy:
     src: src/opt/futel/src/audiofone.py
     dest: /opt/futel/src/audiofone.py
@@ -33,5 +33,5 @@
     group: pi
 - name: make script executable
   file:
-    path: /opt/futel/src/hookswitch.py
+    path: /opt/futel/src/audiofone.py
     mode: "u+x"

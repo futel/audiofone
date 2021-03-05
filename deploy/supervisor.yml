@@ -1,10 +1,9 @@
 ---
 # I have no clue what I'm doing
-- name: pd supervisor config
+- name: copy pd supervisor config
   copy:
     src: src/etc/supervisor/conf.d/puredata.conf
     dest: /etc/supervisor/conf.d/puredata.conf
-
 - name: (re)start supervisord
   ansible.builtin.service:
     name: supervisor

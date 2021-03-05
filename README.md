@@ -20,7 +20,7 @@ dev box
 
 # Test on pi:
 
-* sudo python3 /opt/futel/src/audiofone.py
+* sudo /opt/futel/src/audiofone.py
 * watch stdout
 * short gpio pin 7 to gpio ground
 * have a keypad and frob the hookswitch and keys
