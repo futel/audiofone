@@ -56,9 +56,9 @@ def cancel_ring_timer():
 
 def on_keydown(key):
     global hookstate
-    if(hookstate != 'off'): return
-    print("KEYDOWN %s" % (key))
-    tones.off()
+    if(hookstate == 'on'): return
+    print("KEYDOWN %s hooksate %s" % (key, hookstate))
+    if(hookstate == 'off'): tones.off()
     tones.key(key)
     cancel_timers()
     start_busy_timer()
@@ -94,6 +94,7 @@ def have_number(number):
     soundfile = 'margarets_monologue'
 
     def play():
+        global hookstate
         print("DEBUG: play() %s" %(soundfile))
         tones.off()
         tones.play_audio(soundfile)
@@ -103,6 +104,7 @@ def have_number(number):
     ring_time = random.randrange(4, 13)
     print("Ring for %d seconds" % (ring_time))
     tones.ring()
+    hookstate = 'ringing'
     cancel_timers()
     ring_timer = threading.Timer(ring_time, play)
     ring_timer.start()
@@ -126,7 +128,7 @@ while(True):
         print("key read cancelled")
         continue
     print(">> Key released => %s" %(k))
-    if not hookstate in ['busy wait', 'playing audio']: tones.off()
+    if not hookstate in ['busy wait', 'playing audio', 'ringing']: tones.off()
     if(hookstate == 'off'):
         dialed_number = dialed_number + k
         if(len(dialed_number) == 7):
