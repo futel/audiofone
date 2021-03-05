@@ -25,3 +25,6 @@ class Tones:
 
     def play_audio(self, basename):
         self.client.send_message('/play', basename)
+
+    def keys_off(self):
+        self.client.send_message('/keys', 'off')
