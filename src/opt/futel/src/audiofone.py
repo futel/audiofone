@@ -25,11 +25,16 @@ def play_busy():
     global hookstate
     global busy_timer
     if(hookstate == 'on'): return
-    print("Too long off hook...going BUSY")
+    print("Too long off hook...")
+    busy_timer = None
+    go_busy()
+
+def go_busy():
+    global hookstate
+    print("going BUSY")
     hookstate = 'busy wait'
     tones.off()
     tones.busy()
-    busy_timer = None
 
 def start_busy_timer():
     global busy_timer
@@ -115,6 +120,11 @@ def play_audiofile(filename):
     busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
     busy_timer.start()
 
+def invalid_dialplan(number):
+    if number.startswith("0"): return True
+    if "#" in number: return True
+    if "*" in number: return True
+    return False
 
 keypad = Keypad(on_keydown)
 
@@ -133,6 +143,9 @@ while(True):
     else: tones.keys_off()
     if(hookstate == 'off'):
         dialed_number = dialed_number + k
+        if(invalid_dialplan(dialed_number)):
+            go_busy()
+            continue
         if(len(dialed_number) == 7):
             have_number(dialed_number)
             dialed_number = ''
