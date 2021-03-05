@@ -22,3 +22,6 @@ class Tones:
         if key in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
             key = int(key)
         self.client.send_message('/key', key)
+
+    def play_audio(self, basename):
+        self.client.send_message('/play', basename)
