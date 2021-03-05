@@ -6,6 +6,7 @@ from tones import Tones
 import RPi.GPIO as GPIO
 import time
 import threading
+import random
 
 # main audiofone entrypoint
 
@@ -15,6 +16,7 @@ BUSY_TIMEOUT = 15.0 # seconds
 hookstate = 'on'
 dialed_number = ''
 busy_timer = None
+ring_timer = None
 
 tones = Tones()
 tones.off()
@@ -32,9 +34,13 @@ def play_busy():
 def start_busy_timer():
     global busy_timer
     print("starting busy timer")
-    cancel_busy_timer()
+    cancel_timers()
     busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
     busy_timer.start()
+
+def cancel_timers():
+    cancel_busy_timer()
+    cancel_ring_timer()
 
 def cancel_busy_timer():
     global busy_timer
@@ -42,13 +48,19 @@ def cancel_busy_timer():
         busy_timer.cancel()
     busy_timer = None
 
+def cancel_ring_timer():
+    global ring_timer
+    if ring_timer is not None:
+        ring_timer.cancel()
+    ring_timer = None
+
 def on_keydown(key):
     global hookstate
     if(hookstate != 'off'): return
     print("KEYDOWN %s" % (key))
     tones.off()
     tones.key(key)
-    cancel_busy_timer()
+    cancel_timers()
     start_busy_timer()
 
 keypad = Keypad(on_keydown)
@@ -68,7 +80,41 @@ def on_hangup():
     hookstate = 'on'
     tones.off()
     keypad.cancel()
-    cancel_busy_timer()
+    cancel_timers()
+
+def have_number(number):
+    global ring_timer
+    print("*** YOU DID IT! %s" % (number))
+
+    # look up number
+    # if not exist play busy signal
+    # if exists, random delay 3-10 seconds
+    #    after delay play signal
+
+    soundfile = number
+    soundfile = 'margarets_monologue'
+
+    def play():
+        print("DEBUG: play() %s" %(soundfile))
+        tones.off()
+        tones.play_audio(soundfile)
+        ring_timer = None
+
+    ring_time = random.randrange(4, 13)
+    print("Ring for %d seconds" % (ring_time))
+    tones.ring()
+    cancel_timers()
+    ring_timer = threading.Timer(ring_time, play)
+    ring_timer.start()
+
+def progress_after_time(how_long):
+    pass
+
+def play_audiofile(filename):
+    global busy_timer
+    busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
+    busy_timer.start()
+
 
 hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
                         on_hook_down = on_hangup,
@@ -85,7 +131,5 @@ while(True):
     if(hookstate == 'off'):
         dialed_number = dialed_number + k
         if(len(dialed_number) == 7):
-            print("*** YOU DID IT! %s" % (dialed_number))
-            tones.ring()
+            have_number(dialed_number)
             dialed_number = ''
-            start_busy_timer()
