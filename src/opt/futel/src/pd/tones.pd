@@ -1,21 +1,21 @@
 #N canvas 607 148 1331 837 12;
 #X obj 338 351 dac~;
-#N canvas 1969 177 1078 953 tones 0;
+#N canvas 1969 177 1169 1075 tones 1;
 #X obj 31 9 inlet;
-#X obj 96 317 dtmf~;
-#X obj 158 411 outlet~;
-#X msg 95 276 off;
-#X obj 168 152 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 96 383 dtmf~;
+#X obj 158 477 outlet~;
+#X msg 95 342 off;
+#X obj 168 218 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 234 153 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 234 219 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X obj 31 45 route list;
-#X obj 45 398 print log;
-#X msg 139 236 on *;
-#X msg 155 269 on #;
-#X msg 45 276 on \$1;
-#X obj 13 141 route star asterisk;
-#X obj 20 183 route pound hash;
+#X obj 45 464 print log;
+#X msg 139 302 on *;
+#X msg 155 335 on #;
+#X msg 45 342 on \$1;
+#X obj 13 207 route star asterisk;
+#X obj 20 249 route pound hash;
 #N canvas 2383 402 1296 1132 ring 0;
 #X obj 68 42 inlet;
 #X obj 148 41 inlet;
@@ -48,7 +48,7 @@
 #X connect 13 0 15 0;
 #X connect 14 0 4 0;
 #X connect 15 0 8 0;
-#X restore 437 247 pd ring;
+#X restore 437 313 pd ring;
 #N canvas 2383 402 1296 1132 busy 0;
 #X obj 68 42 inlet;
 #X obj 148 41 inlet;
@@ -94,8 +94,8 @@
 #X connect 18 0 19 0;
 #X connect 18 0 11 0;
 #X connect 19 0 18 1;
-#X restore 349 246 pd busy;
-#X obj 169 114 select off dialtone busy ring;
+#X restore 349 312 pd busy;
+#X obj 169 180 select off dialtone busy ring;
 #N canvas 2607 989 806 850 dialtone 0;
 #X obj 97 289 outlet~;
 #X obj 97 38 inlet;
@@ -116,12 +116,15 @@
 #X connect 7 0 6 0;
 #X connect 8 0 7 0;
 #X connect 9 0 7 0;
-#X restore 228 248 pd dialtone;
-#X obj 270 152 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X restore 228 314 pd dialtone;
+#X obj 270 218 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 321 144 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 321 210 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 31 75 route key off dialtone busy ring;
+#X obj 31 75 route key keys off dialtone busy ring;
+#X obj 54 126 route off;
+#X obj 70 151 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
 #X connect 0 0 6 0;
 #X connect 1 0 2 0;
 #X connect 3 0 1 0;
@@ -161,10 +164,13 @@
 #X connect 18 0 14 1;
 #X connect 18 0 3 0;
 #X connect 19 0 11 0;
-#X connect 19 1 4 0;
-#X connect 19 2 5 0;
-#X connect 19 3 17 0;
-#X connect 19 4 18 0;
+#X connect 19 1 20 0;
+#X connect 19 2 4 0;
+#X connect 19 3 5 0;
+#X connect 19 4 17 0;
+#X connect 19 5 18 0;
+#X connect 20 0 21 0;
+#X connect 21 0 3 0;
 #X restore 342 285 pd tones;
 #X obj 342 185 oscparse;
 #X obj 302 66 oscformat dialtone;
@@ -197,6 +203,8 @@
 #X obj 326 37 oscformat ring;
 #X obj 520 123 inlet;
 #X text 515 100 netreceive input here;
+#X msg 176 194 symbol off;
+#X obj 177 222 oscformat keys;
 #X connect 1 0 0 1;
 #X connect 1 0 0 0;
 #X connect 2 0 1 0;
@@ -218,3 +226,5 @@
 #X connect 25 0 26 0;
 #X connect 26 0 2 0;
 #X connect 27 0 2 0;
+#X connect 29 0 30 0;
+#X connect 30 0 2 0;

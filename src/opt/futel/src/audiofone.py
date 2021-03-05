@@ -58,10 +58,11 @@ def on_keydown(key):
     global hookstate
     if(hookstate == 'on'): return
     print("KEYDOWN %s hooksate %s" % (key, hookstate))
-    if(hookstate == 'off'): tones.off()
+    if hookstate == 'off': tones.off()
     tones.key(key)
-    cancel_timers()
-    start_busy_timer()
+    if hookstate == 'off':
+        cancel_timers()
+        start_busy_timer()
 
 def on_handset_pickup():
     global hookstate
@@ -128,7 +129,8 @@ while(True):
         print("key read cancelled")
         continue
     print(">> Key released => %s" %(k))
-    if not hookstate in ['busy wait', 'playing audio', 'ringing']: tones.off()
+    if hookstate == 'off': tones.off()
+    else: tones.keys_off()
     if(hookstate == 'off'):
         dialed_number = dialed_number + k
         if(len(dialed_number) == 7):
