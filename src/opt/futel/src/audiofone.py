@@ -63,8 +63,6 @@ def on_keydown(key):
     cancel_timers()
     start_busy_timer()
 
-keypad = Keypad(on_keydown)
-
 def on_handset_pickup():
     global hookstate
     global dialed_number
@@ -84,6 +82,7 @@ def on_hangup():
 
 def have_number(number):
     global ring_timer
+    global hookstate
     print("*** YOU DID IT! %s" % (number))
 
     # look up number
@@ -98,6 +97,7 @@ def have_number(number):
         print("DEBUG: play() %s" %(soundfile))
         tones.off()
         tones.play_audio(soundfile)
+        hookstate = 'playing audio'
         ring_timer = None
 
     ring_time = random.randrange(4, 13)
@@ -107,14 +107,13 @@ def have_number(number):
     ring_timer = threading.Timer(ring_time, play)
     ring_timer.start()
 
-def progress_after_time(how_long):
-    pass
-
 def play_audiofile(filename):
     global busy_timer
     busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
     busy_timer.start()
 
+
+keypad = Keypad(on_keydown)
 
 hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
                         on_hook_down = on_hangup,
@@ -127,7 +126,7 @@ while(True):
         print("key read cancelled")
         continue
     print(">> Key released => %s" %(k))
-    if not hookstate == 'busy wait': tones.off()
+    if not hookstate in ['busy wait', 'playing audio']: tones.off()
     if(hookstate == 'off'):
         dialed_number = dialed_number + k
         if(len(dialed_number) == 7):
