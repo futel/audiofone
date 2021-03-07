@@ -51,15 +51,31 @@ class Keypad:
                 for col in [0, 1, 2]:
                     colpin = PINS['col%d' % (col)]
                     if(GPIO.event_detected(colpin)):
+                        print("OH SHIT DETEKTED 1 %d" % (GPIO.input(colpin)))
                         key_name = DIGITS[row][col]
 
+                        time.sleep(0.025) # shitty debounce time
+                        print("OH SHIT DETEKTED 2 %d" % (GPIO.input(colpin)))
                         self._on_keydown(key_name)  # Invoke keydown callback
-
-                        while(not GPIO.event_detected(colpin)):
+                        print("OH SHIT DETEKTED 3 %d" % (GPIO.input(colpin)))
+                        time.sleep(0.025) # shitty debounce time
+                        print("OH SHIT DETEKTED 4 %d" % (GPIO.input(colpin)))
+                        # GPIO.remove_event_detect(colpin)
+                        # self._enable_safely(colpin, GPIO.BOTH)
+                        print("     pre %d" % (GPIO.input(colpin)))
+                        # while(not GPIO.event_detected(colpin)):
+                        while(GPIO.input(colpin) == 0):
+                            print("     inner")
                             if GPIO.input(colpin) == 1: break
+                            print("     inner post pincheck")
                             if(self._cancelled): return ''
+                            print("     inner post cancelcheck")
                             # print("DEBUG still down %s" % (key_name))
                             time.sleep(0.025)
+                        print(    "     before we go: %d" %(GPIO.input(colpin)))
+                        for x in range(1, 500):
+                            print(    "%d" %(GPIO.input(colpin)), end='')
+                            time.sleep(0.010)
                         return key_name
                 GPIO.output(rowpin, GPIO.HIGH)
         return '' # cancelled

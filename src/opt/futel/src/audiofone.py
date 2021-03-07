@@ -60,14 +60,15 @@ def cancel_ring_timer():
     ring_timer = None
 
 def on_keydown(key):
-    global hookstate
-    if(hookstate == 'on'): return
-    print("KEYDOWN %s hooksate %s" % (key, hookstate))
-    if hookstate == 'off': tones.off()
-    tones.key(key)
-    if hookstate == 'off':
-        cancel_timers()
-        start_busy_timer()
+    print("on keydown")
+    # global hookstate
+    # if(hookstate == 'on'): return
+    # print("KEYDOWN %s hooksate %s" % (key, hookstate))
+    # if hookstate == 'off': tones.off()
+    # tones.key(key)
+    # if hookstate == 'off':
+    #     cancel_timers()
+    #     start_busy_timer()
 
 def on_handset_pickup():
     global hookstate
