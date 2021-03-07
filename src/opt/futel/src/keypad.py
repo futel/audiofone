@@ -71,10 +71,10 @@ class Keypad:
 
     def _enable_safely(self, pin, direction):
         try:
-            GPIO.add_event_detect(pin, direction)
+            GPIO.add_event_detect(pin, direction, bouncetime=150)
         except:
             print("Configuring pin detect failed, trying again.")
-            GPIO.add_event_detect(pin, direction)
+            GPIO.add_event_detect(pin, direction, bouncetime=150)
 
     def _remove_detect(self):
         GPIO.remove_event_detect(PINS['col0'])
