@@ -96,24 +96,35 @@ def have_number(number):
     # if exists, random delay 3-10 seconds
     #    after delay play signal
 
-    soundfile = number
-    soundfile = 'margarets_monologue'
-
-    def play():
-        global hookstate
-        print("DEBUG: play() %s" %(soundfile))
-        tones.off()
-        tones.play_audio(soundfile)
-        hookstate = 'playing audio'
-        ring_timer = None
+    soundfile = get_soundfile(number)
+    print("SOUNDFILE is %s" %(soundfile))
+    if soundfile is '':
+        tones.busy()
+        return
 
     ring_time = random.randrange(4, 13)
     print("Ring for %d seconds" % (ring_time))
     tones.ring()
     hookstate = 'ringing'
     cancel_timers()
-    ring_timer = threading.Timer(ring_time, play)
+    ring_timer = threading.Timer(ring_time, lambda: play_audio_after_ring(soundfile))
     ring_timer.start()
+
+def play_audio_after_ring(soundfile):
+    global hookstate
+    global ring_timer
+    print("DEBUG: play() %s" %(soundfile))
+    tones.off()
+    tones.play_audio(soundfile)
+    hookstate = 'playing audio'
+    ring_timer = None
+
+def get_soundfile(number):
+    if number == '7592868': # internal test number
+        return 'margarets_monologue'
+    # TODO: Verify file exists on disk in known locations
+    # If it does, return the number without path
+    return ''
 
 def play_audiofile(filename):
     global busy_timer
