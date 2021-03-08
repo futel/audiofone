@@ -100,7 +100,7 @@ def have_number(number):
     soundfile = get_soundfile(number)
     log("SOUNDFILE is %s" %(soundfile))
     if soundfile is '':
-        tones.busy()
+        tones.fast_busy()
         return
 
     ring_time = random.randrange(4, 13)

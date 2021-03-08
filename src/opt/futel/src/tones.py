@@ -15,6 +15,9 @@ class Tones:
     def busy(self):
         self.client.send_message('/busy', '')
 
+    def fast_busy(self):
+        self.client.send_message('/fastbusy', '')
+
     def ring(self):
         self.client.send_message('/ring', '')
 
