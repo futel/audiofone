@@ -3,6 +3,7 @@
 from hookswitch import Hookswitch
 from keypad import Keypad
 from tones import Tones
+from log import log
 import RPi.GPIO as GPIO
 import time
 import threading
@@ -25,20 +26,20 @@ def play_busy():
     global hookstate
     global busy_timer
     if(hookstate == 'on'): return
-    print("Too long off hook...")
+    log("Too long off hook...")
     busy_timer = None
     go_busy()
 
 def go_busy():
     global hookstate
-    print("going BUSY")
+    log("going BUSY")
     hookstate = 'busy wait'
     tones.off()
     tones.busy()
 
 def start_busy_timer():
     global busy_timer
-    print("starting busy timer")
+    log("starting busy timer")
     cancel_timers()
     busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
     busy_timer.start()
@@ -62,7 +63,7 @@ def cancel_ring_timer():
 def on_keydown(key):
     global hookstate
     if(hookstate == 'on'): return
-    print("KEYDOWN %s hooksate %s" % (key, hookstate))
+    log("KEYDOWN %s hooksate %s" % (key, hookstate))
     if hookstate == 'off': tones.off()
     tones.key(key)
     if hookstate == 'off':
@@ -72,7 +73,7 @@ def on_keydown(key):
 def on_handset_pickup():
     global hookstate
     global dialed_number
-    print("Off hook")
+    log("Off hook")
     hookstate = 'off'
     dialed_number = ''
     tones.dialtone()
@@ -80,7 +81,7 @@ def on_handset_pickup():
 
 def on_hangup():
     global hookstate
-    print("Hangup")
+    log("Hangup")
     hookstate = 'on'
     tones.off()
     keypad.cancel()
@@ -89,7 +90,7 @@ def on_hangup():
 def have_number(number):
     global ring_timer
     global hookstate
-    print("*** YOU DID IT! %s" % (number))
+    log("*** YOU DID IT! %s" % (number))
 
     # look up number
     # if not exist play busy signal
@@ -97,13 +98,13 @@ def have_number(number):
     #    after delay play signal
 
     soundfile = get_soundfile(number)
-    print("SOUNDFILE is %s" %(soundfile))
+    log("SOUNDFILE is %s" %(soundfile))
     if soundfile is '':
         tones.busy()
         return
 
     ring_time = random.randrange(4, 13)
-    print("Ring for %d seconds" % (ring_time))
+    log("Ring for %d seconds" % (ring_time))
     tones.ring()
     hookstate = 'ringing'
     cancel_timers()
@@ -113,7 +114,7 @@ def have_number(number):
 def play_audio_after_ring(soundfile):
     global hookstate
     global ring_timer
-    print("DEBUG: play() %s" %(soundfile))
+    log("DEBUG: play() %s" %(soundfile))
     tones.off()
     tones.play_audio(soundfile)
     hookstate = 'playing audio'
@@ -147,9 +148,9 @@ hookswitch.run()
 while(True):
     k = keypad.read_key()
     if(k == ''):
-        print("key read cancelled")
+        log("key read cancelled")
         continue
-    print(">> Key released => %s" %(k))
+    log(">> Key released => %s" %(k))
     if hookstate == 'off': tones.off()
     else: tones.keys_off()
     if(hookstate == 'off'):

@@ -1,6 +1,7 @@
 
 import time
 import RPi.GPIO as GPIO
+from log import log
 
 # row scan, column detects
 
@@ -58,7 +59,7 @@ class Keypad:
                         while(not GPIO.event_detected(colpin)):
                             if GPIO.input(colpin) == 1: break
                             if(self._cancelled): return ''
-                            # print("DEBUG still down %s" % (key_name))
+                            # log("DEBUG still down %s" % (key_name))
                             time.sleep(0.025)
                         return key_name
                 GPIO.output(rowpin, GPIO.HIGH)
@@ -73,7 +74,7 @@ class Keypad:
         try:
             GPIO.add_event_detect(pin, direction, bouncetime=150)
         except:
-            print("Configuring pin detect failed, trying again.")
+            log("Configuring pin detect failed, trying again.")
             GPIO.add_event_detect(pin, direction, bouncetime=150)
 
     def _remove_detect(self):
@@ -90,9 +91,9 @@ class Keypad:
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BOARD)
     def on_keydown(key_name):
-        print("down %s" % (key_name))
+        log("down %s" % (key_name))
     k = Keypad(on_keydown)
     while(True):
-        print("Waiting for a key...")
+        log("Waiting for a key...")
         digit = k.read_key()
-        print("Saw key: %s" % (digit))
+        log("Saw key: %s" % (digit))

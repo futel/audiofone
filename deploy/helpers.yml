@@ -13,6 +13,12 @@
     dest: /opt/futel/src/hookswitch.py
     owner: pi
     group: pi
+- name: copy log
+  copy:
+    src: src/opt/futel/src/log.py
+    dest: /opt/futel/src/log.py
+    owner: pi
+    group: pi
 - name: copy tones
   copy:
     src: src/opt/futel/src/tones.py
