@@ -1,6 +1,6 @@
 #N canvas 607 148 1331 837 12;
 #X obj 338 351 dac~;
-#N canvas 1969 177 1169 1075 tones 1;
+#N canvas 445 732 1304 1075 tones 1;
 #X obj 31 9 inlet;
 #X obj 96 383 dtmf~;
 #X obj 158 477 outlet~;
@@ -48,7 +48,7 @@
 #X connect 13 0 15 0;
 #X connect 14 0 4 0;
 #X connect 15 0 8 0;
-#X restore 437 313 pd ring;
+#X restore 491 315 pd ring;
 #N canvas 2383 402 1296 1132 busy 0;
 #X obj 68 42 inlet;
 #X obj 148 41 inlet;
@@ -94,8 +94,7 @@
 #X connect 18 0 19 0;
 #X connect 18 0 11 0;
 #X connect 19 0 18 1;
-#X restore 349 312 pd busy;
-#X obj 169 180 select off dialtone busy ring;
+#X restore 329 313 pd busy;
 #N canvas 2607 989 806 850 dialtone 0;
 #X obj 97 289 outlet~;
 #X obj 97 38 inlet;
@@ -119,25 +118,76 @@
 #X restore 228 314 pd dialtone;
 #X obj 270 218 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 321 210 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 385 217 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 31 75 route key keys off dialtone busy ring;
 #X obj 54 126 route off;
 #X obj 70 151 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
+#N canvas 1690 664 1296 1132 fastbusy 0;
+#X obj 68 42 inlet;
+#X obj 148 41 inlet;
+#X text 63 18 bang;
+#X text 144 15 stop;
+#X obj 111 381 *~ 0.5;
+#X obj 90 410 *~;
+#X obj 90 289 vline~;
+#X obj 111 322 osc~ 480;
+#X obj 127 348 osc~ 620;
+#X obj 88 175 % 2;
+#X obj 92 201 select 0 1;
+#X msg 154 80 stop;
+#X obj 91 226 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 135 229 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X msg 99 82 bang;
+#X obj 89 150 f;
+#X obj 121 150 + 1;
+#X obj 86 466 outlet~;
+#X obj 89 123 metro 250;
+#X msg 91 251 1 5;
+#X msg 135 251 0 5;
+#X connect 0 0 14 0;
+#X connect 1 0 11 0;
+#X connect 4 0 5 1;
+#X connect 5 0 17 0;
+#X connect 6 0 5 0;
+#X connect 7 0 4 0;
+#X connect 8 0 4 0;
+#X connect 9 0 10 0;
+#X connect 10 0 12 0;
+#X connect 10 1 13 0;
+#X connect 11 0 13 0;
+#X connect 11 0 18 0;
+#X connect 12 0 19 0;
+#X connect 13 0 20 0;
+#X connect 14 0 18 0;
+#X connect 15 0 16 0;
+#X connect 15 0 9 0;
+#X connect 16 0 15 1;
+#X connect 18 0 15 0;
+#X connect 19 0 6 0;
+#X connect 20 0 6 0;
+#X restore 398 314 pd fastbusy;
+#X obj 169 180 select off dialtone busy fastbusy ring;
+#X obj 321 215 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 31 75 route key keys off dialtone busy fastbusy ring;
 #X connect 0 0 6 0;
 #X connect 1 0 2 0;
 #X connect 3 0 1 0;
 #X connect 4 0 3 0;
 #X connect 4 0 14 1;
-#X connect 4 0 16 1;
+#X connect 4 0 15 1;
 #X connect 4 0 13 1;
+#X connect 4 0 20 1;
 #X connect 5 0 14 1;
-#X connect 5 0 16 0;
+#X connect 5 0 15 0;
 #X connect 5 0 3 0;
 #X connect 5 0 13 1;
-#X connect 6 0 19 0;
-#X connect 6 1 15 0;
+#X connect 5 0 20 1;
+#X connect 6 0 23 0;
+#X connect 6 1 21 0;
 #X connect 8 0 1 0;
 #X connect 9 0 1 0;
 #X connect 10 0 1 0;
@@ -150,36 +200,46 @@
 #X connect 12 2 10 0;
 #X connect 13 0 2 0;
 #X connect 14 0 2 0;
-#X connect 15 0 4 0;
-#X connect 15 1 5 0;
-#X connect 15 2 17 0;
-#X connect 15 3 18 0;
-#X connect 16 0 2 0;
-#X connect 17 0 14 0;
-#X connect 17 0 16 1;
+#X connect 15 0 2 0;
+#X connect 16 0 14 0;
+#X connect 16 0 15 1;
+#X connect 16 0 3 0;
+#X connect 16 0 13 1;
+#X connect 16 0 20 1;
+#X connect 17 0 13 0;
+#X connect 17 0 15 1;
+#X connect 17 0 14 1;
 #X connect 17 0 3 0;
-#X connect 17 0 13 1;
-#X connect 18 0 13 0;
-#X connect 18 0 16 1;
-#X connect 18 0 14 1;
-#X connect 18 0 3 0;
-#X connect 19 0 11 0;
-#X connect 19 1 20 0;
-#X connect 19 2 4 0;
-#X connect 19 3 5 0;
-#X connect 19 4 17 0;
-#X connect 19 5 18 0;
-#X connect 20 0 21 0;
-#X connect 21 0 3 0;
+#X connect 17 0 20 1;
+#X connect 18 0 19 0;
+#X connect 19 0 3 0;
+#X connect 20 0 2 0;
+#X connect 21 0 4 0;
+#X connect 21 1 5 0;
+#X connect 21 2 16 0;
+#X connect 21 3 22 0;
+#X connect 21 4 17 0;
+#X connect 22 0 20 0;
+#X connect 22 0 3 0;
+#X connect 22 0 15 1;
+#X connect 22 0 14 1;
+#X connect 22 0 13 1;
+#X connect 23 0 11 0;
+#X connect 23 1 18 0;
+#X connect 23 2 4 0;
+#X connect 23 3 5 0;
+#X connect 23 4 16 0;
+#X connect 23 5 22 0;
+#X connect 23 6 17 0;
 #X restore 342 285 pd tones;
-#X obj 342 185 oscparse;
-#X obj 302 66 oscformat dialtone;
-#X obj 269 128 oscformat off;
-#X obj 256 104 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+#X obj 340 216 oscparse;
+#X obj 345 61 oscformat dialtone;
+#X obj 268 154 oscformat off;
+#X obj 267 134 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
 #X floatatom 89 109 5 0 0 0 - - -;
 #X msg 116 79 1;
-#X obj 295 45 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 338 40 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
 #X text 14 22 /dialtone;
 #X obj 153 158 oscformat key;
@@ -194,17 +254,20 @@
 #X obj 24 203 loadbang;
 #X msg 25 275 \; pd dsp 1;
 #X obj 26 242 delay 2500;
-#X obj 363 220 print saw osc:;
-#X obj 276 72 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 361 251 print saw osc:;
+#X obj 319 67 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 290 97 oscformat busy;
-#X obj 319 16 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 333 92 oscformat busy;
+#X obj 362 11 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 326 37 oscformat ring;
+#X obj 369 32 oscformat ring;
 #X obj 520 123 inlet;
 #X text 515 100 netreceive input here;
 #X msg 176 194 symbol off;
 #X obj 177 222 oscformat keys;
+#X obj 289 95 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 303 120 oscformat fastbusy;
 #X connect 1 0 0 1;
 #X connect 1 0 0 0;
 #X connect 2 0 1 0;
@@ -228,3 +291,5 @@
 #X connect 27 0 2 0;
 #X connect 29 0 30 0;
 #X connect 30 0 2 0;
+#X connect 31 0 32 0;
+#X connect 32 0 2 0;
