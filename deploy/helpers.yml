@@ -1,12 +1,16 @@
 ---
 - name: copy audio assets
   copy:
-    src: src/opt/futel/src/audio/
-    dest: /opt/futel/src/audio/
+    src: src/opt/futel/src/audio
+    dest: /opt/futel/src/
+    owner: pi
+    group: pi
 - name: copy pd dir
   copy:
-    src: src/opt/futel/src/pd/
-    dest: /opt/futel/src/pd/
+    src: src/opt/futel/src/pd
+    dest: /opt/futel/src/
+    owner: pi
+    group: pi
 - name: copy hookswitch
   copy:
     src: src/opt/futel/src/hookswitch.py
