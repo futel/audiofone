@@ -25,9 +25,9 @@ tones.off()
 
 
 class Hookstate(Enum):
-    ON = auto()
+    ON = auto()                 # hook down
+    OFF = auto()                # hook up and collecting keypresses
     BUSY_WAIT = auto()
-    OFF = auto()
     RINGING = auto()
     PLAYING_AUDIO = auto()
 
@@ -177,8 +177,10 @@ while(True):
         log("key read cancelled")
         continue
     log(">> Key released => %s" %(k))
-    if hookstate == Hookstate.OFF: tones.off()
-    else: tones.keys_off()
+    if hookstate == Hookstate.OFF:
+        tones.off()
+    else:
+        tones.keys_off()
     if(hookstate == Hookstate.OFF):
         dialed_number = dialed_number + k
         if(invalid_dialplan(dialed_number)):
