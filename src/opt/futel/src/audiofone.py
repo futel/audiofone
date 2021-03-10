@@ -88,6 +88,9 @@ def on_hangup():
     cancel_timers()
 
 def have_number(number):
+    """
+    Perform event for number.
+    """
     global ring_timer
     global hookstate
     log("*** YOU DID IT! %s" % (number))
@@ -108,7 +111,8 @@ def have_number(number):
     tones.ring()
     hookstate = 'ringing'
     cancel_timers()
-    ring_timer = threading.Timer(ring_time, lambda: play_audio_after_ring(soundfile))
+    ring_timer = threading.Timer(
+        ring_time, lambda: play_audio_after_ring(soundfile))
     ring_timer.start()
 
 def play_audio_after_ring(soundfile):
@@ -133,6 +137,7 @@ def play_audiofile(filename):
     busy_timer.start()
 
 def invalid_dialplan(number):
+    """Return True if number matches a forbidden sequence."""
     if number.startswith("0"): return True
     if "#" in number: return True
     if "*" in number: return True

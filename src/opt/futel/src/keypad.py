@@ -40,6 +40,11 @@ class Keypad:
         self._cancelled = True
 
     def read_key(self):
+        """
+        Busy wait until we detect a keydown or cancel. On keydown, callback and
+        busy wait until we detect a keyup or cancel, then return token for what
+        we detected.
+        """
         self._cancelled = False
         self._all_rows_high()
         self._remove_detect()
@@ -89,6 +94,7 @@ class Keypad:
         GPIO.output(PINS['row3'], GPIO.HIGH)
 
 if __name__ == "__main__":
+    # test method
     GPIO.setmode(GPIO.BOARD)
     def on_keydown(key_name):
         log("down %s" % (key_name))
