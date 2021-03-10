@@ -131,11 +131,6 @@ def get_soundfile(number):
     # If it does, return the number without path
     return ''
 
-def play_audiofile(filename):
-    global busy_timer
-    busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
-    busy_timer.start()
-
 def invalid_dialplan(number):
     """Return True if number matches a forbidden sequence."""
     if number.startswith("0"): return True
