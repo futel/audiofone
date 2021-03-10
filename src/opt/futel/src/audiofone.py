@@ -23,6 +23,9 @@ ring_timer = None
 tones = Tones()
 tones.off()
 
+# q&d lookup structure, intended to be temporary
+numbers = {
+    '7592868': 'margarets_monologue'}
 
 class Hookstate(Enum):
     ON = auto()                 # hook down
@@ -127,9 +130,10 @@ def have_number(number):
 
     soundfile = get_soundfile(number)
     log("SOUNDFILE is %s" %(soundfile))
-    if soundfile is '':
+    if soundfile is None:
         go_fast_busy()
         return
+    log("SOUNDFILE is %s" %(soundfile))
 
     # Enter ringing state, start thread to play soundfile after timer
     ring_time = random.randrange(4, 13)
@@ -151,11 +155,7 @@ def play_audio_after_ring(soundfile):
     ring_timer = None
 
 def get_soundfile(number):
-    if number == '7592868': # internal test number
-        return 'margarets_monologue'
-    # TODO: Verify file exists on disk in known locations
-    # If it does, return the number without path
-    return ''
+    return numbers.get(number)
 
 def invalid_dialplan(number):
     """Return True if number matches a forbidden sequence."""
