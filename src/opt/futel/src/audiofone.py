@@ -121,7 +121,6 @@ def have_number(number):
     """
     global ring_timer
     global hookstate
-    log("*** YOU DID IT! %s" % (number))
 
     if(invalid_dialplan(number)):
         go_busy()
@@ -129,7 +128,7 @@ def have_number(number):
 
     soundfile = get_soundfile(number)
     if soundfile is None:
-        if(len(number) == max(len(k) for k in numbers.keys())):
+        if not possible_soundfile(number):
             go_fast_busy()
             return True
     else:
@@ -155,7 +154,12 @@ def play_audio_after_ring(soundfile):
     ring_timer = None
 
 def get_soundfile(number):
+    """ Return soundfile name corresponding to number. """
     return numbers.get(number)
+
+def possible_soundfile(number):
+    """ Return True if number might be a valid prefix. """
+    return len(number) < max(len(k) for k in numbers.keys())
 
 def invalid_dialplan(number):
     """Return True if number matches a forbidden sequence."""
