@@ -10,6 +10,7 @@ from log import log
 import RPi.GPIO as GPIO
 
 from enum import Enum, auto
+import os
 import time
 import threading
 import random
@@ -17,16 +18,14 @@ import random
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
+audio_directory = "/opt/futel/src/audio"
+
+# globals for the ongoing interaction
 dialed_number = ''
 busy_timer = None
 ring_timer = None
-
 tones = Tones()
 tones.off()
-
-# q&d lookup structure, intended to be temporary
-numbers = {
-    '7592868': '7592868_margarets_monologue'}
 
 
 class NumberValidity(Enum):
@@ -162,12 +161,26 @@ def play_audio_after_ring(soundfile):
     ring_timer = None
 
 def get_soundfile(number):
-    """ Return soundfile name corresponding to number. """
-    return numbers.get(number)
+    """ Return normalized soundfile name corresponding to number. """
+    for filename in os.listdir(audio_directory):
+        # number part is before first underscore
+        if filename.split('_').pop(0) == number:
+            # remove filetype suffix, assume max one dot in filename
+            return filename.split('.').pop(0)
+    return None
 
 def possible_soundfile(number):
-    """ Return True if number might be a valid prefix. """
-    return len(number) < max(len(k) for k in numbers.keys())
+    """ Return True if number is a prefix of a number matching a soundfile. """
+    # Indicating as soon as a number is not a valid prefix is useful for notifying
+    # as soon as possible when a user can't continue to a valid number. We do it
+    # this way because we don't know how long the valid numbers are. We could check
+    # for the shortest valid number and only notify on that length, but the
+    # immediate feedback makes it easy for the user.
+    for filename in os.listdir(audio_directory):
+        # number part is before first underscore
+        if filename.split('_').pop(0).startswith(number):
+            return True
+    return False
 
 def invalid_dialplan(number):
     """Return True if number matches a forbidden sequence."""
