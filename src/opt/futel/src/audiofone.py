@@ -27,6 +27,13 @@ tones.off()
 numbers = {
     '7592868': 'margarets_monologue'}
 
+
+class NumberValidity(Enum):
+    INVALID_KEY = auto()
+    NOT_PREFIX = auto()
+    POSSIBLE_PREFIX = auto()
+
+
 class Hookstate(Enum):
     ON = auto()                 # hook down
     OFF = auto()                # hook up and collecting keypresses
@@ -117,32 +124,33 @@ def on_hangup():
 
 def have_number(number):
     """
-    Perform event for number.
+    Return soundfile or enum for number.
     """
-    global ring_timer
-    global hookstate
-
     if(invalid_dialplan(number)):
-        go_busy()
-        return True
+        return NumberValidity.INVALID_KEY
 
     soundfile = get_soundfile(number)
     if soundfile is None:
         if not possible_soundfile(number):
-            go_fast_busy()
-            return True
-    else:
-        # Enter ringing state, start thread to play soundfile after timer
-        ring_time = random.randrange(4, 13)
-        log("Ring for %d seconds" % (ring_time))
-        tones.ring()
-        hookstate = Hookstate.RINGING
-        cancel_timers()
-        ring_timer = threading.Timer(
-            ring_time, lambda: play_audio_after_ring(soundfile))
-        ring_timer.start()
-        return True
-    return False
+            return NumberValidity.NOT_PREFIX
+        return NumberValidity.POSSIBLE_PREFIX
+    return soundfile
+
+def start_number_event(soundfile):
+    """
+    Enter ringing state, start thread to play soundfile after timer.
+    """
+    global ring_timer
+    global hookstate
+
+    ring_time = random.randrange(4, 13)
+    log("Ring for %d seconds" % (ring_time))
+    tones.ring()
+    hookstate = Hookstate.RINGING
+    cancel_timers()
+    ring_timer = threading.Timer(
+        ring_time, lambda: play_audio_after_ring(soundfile))
+    ring_timer.start()
 
 def play_audio_after_ring(soundfile):
     global hookstate
@@ -187,5 +195,12 @@ while(True):
         tones.keys_off()
     if(hookstate == Hookstate.OFF):
         dialed_number = dialed_number + k
-        if have_number(dialed_number):
-            dialed_number = ''
+        soundfile = have_number(dialed_number)
+        if soundfile is NumberValidity.INVALID_KEY:
+            go_busy()
+        elif soundfile is NumberValidity.NOT_PREFIX:
+            go_fast_busy()
+        elif soundfile is NumberValidity.POSSIBLE_PREFIX:
+            pass
+        else:
+            start_number_event(soundfile)
