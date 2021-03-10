@@ -37,12 +37,25 @@ hookstate = Hookstate.ON
 def play_busy():
     global hookstate
     global busy_timer
-    if(hookstate == Hookstate.ON): return
+    # Check for a hookswitch state which should prevent audio, although we
+    # shouldn't be active anyway.
+    # XXX should we instead check for not OFF?
+    if(hookstate == Hookstate.ON):
+        return
     log("Too long off hook...")
     busy_timer = None
     go_busy()
 
 def go_busy():
+    """ Set hookstate and play tones. """
+    global hookstate
+    log("going BUSY")
+    hookstate = Hookstate.BUSY_WAIT
+    tones.off()
+    tones.busy()
+
+def go_fast_busy():
+    """ Set hookstate and play tones. """
     global hookstate
     log("going BUSY")
     hookstate = Hookstate.BUSY_WAIT
@@ -115,7 +128,7 @@ def have_number(number):
     soundfile = get_soundfile(number)
     log("SOUNDFILE is %s" %(soundfile))
     if soundfile is '':
-        tones.fast_busy()
+        go_fast_busy()
         return
 
     # Enter ringing state, start thread to play soundfile after timer
