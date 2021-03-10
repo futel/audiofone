@@ -123,27 +123,27 @@ def have_number(number):
     global hookstate
     log("*** YOU DID IT! %s" % (number))
 
-    # look up number
-    # if not exist play busy signal
-    # if exists, random delay 3-10 seconds
-    #    after delay play signal
+    if(invalid_dialplan(number)):
+        go_busy()
+        return True
 
     soundfile = get_soundfile(number)
-    log("SOUNDFILE is %s" %(soundfile))
     if soundfile is None:
-        go_fast_busy()
-        return
-    log("SOUNDFILE is %s" %(soundfile))
-
-    # Enter ringing state, start thread to play soundfile after timer
-    ring_time = random.randrange(4, 13)
-    log("Ring for %d seconds" % (ring_time))
-    tones.ring()
-    hookstate = Hookstate.RINGING
-    cancel_timers()
-    ring_timer = threading.Timer(
-        ring_time, lambda: play_audio_after_ring(soundfile))
-    ring_timer.start()
+        if(len(number) == max(len(k) for k in numbers.keys())):
+            go_fast_busy()
+            return True
+    else:
+        # Enter ringing state, start thread to play soundfile after timer
+        ring_time = random.randrange(4, 13)
+        log("Ring for %d seconds" % (ring_time))
+        tones.ring()
+        hookstate = Hookstate.RINGING
+        cancel_timers()
+        ring_timer = threading.Timer(
+            ring_time, lambda: play_audio_after_ring(soundfile))
+        ring_timer.start()
+        return True
+    return False
 
 def play_audio_after_ring(soundfile):
     global hookstate
@@ -183,9 +183,5 @@ while(True):
         tones.keys_off()
     if(hookstate == Hookstate.OFF):
         dialed_number = dialed_number + k
-        if(invalid_dialplan(dialed_number)):
-            go_busy()
-            continue
-        if(len(dialed_number) == 7):
-            have_number(dialed_number)
+        if have_number(dialed_number):
             dialed_number = ''
