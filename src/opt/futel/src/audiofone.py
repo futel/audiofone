@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+# main audiofone entrypoint
+"""
 
 from hookswitch import Hookswitch
 from keypad import Keypad
@@ -10,8 +13,6 @@ from enum import Enum, auto
 import time
 import threading
 import random
-
-# main audiofone entrypoint
 
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
@@ -25,7 +26,7 @@ tones.off()
 
 # q&d lookup structure, intended to be temporary
 numbers = {
-    '7592868': 'margarets_monologue'}
+    '7592868': '7592868_margarets_monologue'}
 
 
 class NumberValidity(Enum):
@@ -128,7 +129,6 @@ def have_number(number):
     """
     if(invalid_dialplan(number)):
         return NumberValidity.INVALID_KEY
-
     soundfile = get_soundfile(number)
     if soundfile is None:
         if not possible_soundfile(number):
