@@ -5,6 +5,8 @@ from keypad import Keypad
 from tones import Tones
 from log import log
 import RPi.GPIO as GPIO
+
+from enum import Enum, auto
 import time
 import threading
 import random
@@ -14,7 +16,6 @@ import random
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
-hookstate = 'on'
 dialed_number = ''
 busy_timer = None
 ring_timer = None
@@ -22,10 +23,21 @@ ring_timer = None
 tones = Tones()
 tones.off()
 
+
+class Hookstate(Enum):
+    ON = auto()
+    BUSY_WAIT = auto()
+    OFF = auto()
+    RINGING = auto()
+    PLAYING_AUDIO = auto()
+
+
+hookstate = Hookstate.ON
+
 def play_busy():
     global hookstate
     global busy_timer
-    if(hookstate == 'on'): return
+    if(hookstate == Hookstate.ON): return
     log("Too long off hook...")
     busy_timer = None
     go_busy()
@@ -33,7 +45,7 @@ def play_busy():
 def go_busy():
     global hookstate
     log("going BUSY")
-    hookstate = 'busy wait'
+    hookstate = Hookstate.BUSY_WAIT
     tones.off()
     tones.busy()
 
@@ -62,11 +74,11 @@ def cancel_ring_timer():
 
 def on_keydown(key):
     global hookstate
-    if(hookstate == 'on'): return
+    if(hookstate == Hookstate.ON): return
     log("KEYDOWN %s hooksate %s" % (key, hookstate))
-    if hookstate == 'off': tones.off()
+    if hookstate == Hookstate.OFF: tones.off()
     tones.key(key)
-    if hookstate == 'off':
+    if hookstate == Hookstate.OFF:
         cancel_timers()
         start_busy_timer()
 
@@ -74,7 +86,7 @@ def on_handset_pickup():
     global hookstate
     global dialed_number
     log("Off hook")
-    hookstate = 'off'
+    hookstate = Hookstate.OFF
     dialed_number = ''
     tones.dialtone()
     start_busy_timer()
@@ -82,7 +94,7 @@ def on_handset_pickup():
 def on_hangup():
     global hookstate
     log("Hangup")
-    hookstate = 'on'
+    hookstate = Hookstate.ON
     tones.off()
     keypad.cancel()
     cancel_timers()
@@ -106,10 +118,11 @@ def have_number(number):
         tones.fast_busy()
         return
 
+    # Enter ringing state, start thread to play soundfile after timer
     ring_time = random.randrange(4, 13)
     log("Ring for %d seconds" % (ring_time))
     tones.ring()
-    hookstate = 'ringing'
+    hookstate = Hookstate.RINGING
     cancel_timers()
     ring_timer = threading.Timer(
         ring_time, lambda: play_audio_after_ring(soundfile))
@@ -121,7 +134,7 @@ def play_audio_after_ring(soundfile):
     log("DEBUG: play() %s" %(soundfile))
     tones.off()
     tones.play_audio(soundfile)
-    hookstate = 'playing audio'
+    hookstate = Hookstate.PLAYING_AUDIO
     ring_timer = None
 
 def get_soundfile(number):
@@ -151,9 +164,9 @@ while(True):
         log("key read cancelled")
         continue
     log(">> Key released => %s" %(k))
-    if hookstate == 'off': tones.off()
+    if hookstate == Hookstate.OFF: tones.off()
     else: tones.keys_off()
-    if(hookstate == 'off'):
+    if(hookstate == Hookstate.OFF):
         dialed_number = dialed_number + k
         if(invalid_dialplan(dialed_number)):
             go_busy()
