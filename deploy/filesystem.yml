@@ -15,10 +15,12 @@
   file:
     path: /mnt/futel
     state: directory
-# - name: mount flash drive
-#   mount:
-#     path: /mnt/futel
-#     src: UUID=E722-DEBB
-#     fstype: vfat
-#     opts: defaults,auto,users,rw
-#     state: mounted
+# assumes that drive ends up at /dev/sda1
+# this should be true for the first drive connected?
+- name: mount usb flash drive
+  mount:
+    path: /mnt/futel
+    src: /dev/sda1
+    fstype: vfat
+    opts: defaults,auto,users,rw
+    state: mounted

@@ -9,6 +9,8 @@ raspberry pi target box
 * ssh enabled and accessible with default pi/raspberry login
  * can do this by touching ssh file on boot partition:
  * `touch /boot/ssh`
+USB flash drive mounted on pi
+* see README-config.md
 
 dev box
 * ansible

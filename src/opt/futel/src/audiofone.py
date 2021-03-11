@@ -18,7 +18,7 @@ import random
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
-audio_directory = "/opt/futel/src/audio"
+audio_directory = "/mnt/futel"
 
 # globals for the ongoing interaction
 dialed_number = ''
@@ -26,7 +26,6 @@ busy_timer = None
 ring_timer = None
 tones = Tones()
 tones.off()
-
 
 class NumberValidity(Enum):
     INVALID_KEY = auto()
@@ -59,7 +58,7 @@ def play_busy():
 def go_busy():
     """ Set hookstate and play tones. """
     global hookstate
-    log("going BUSY")
+    log("go_busy BUSY_WAIT")
     hookstate = Hookstate.BUSY_WAIT
     tones.off()
     tones.busy()
@@ -67,7 +66,7 @@ def go_busy():
 def go_fast_busy():
     """ Set hookstate and play tones. """
     global hookstate
-    log("going BUSY")
+    log("go_fast_busy BUSY_WAIT")
     hookstate = Hookstate.BUSY_WAIT
     tones.off()
     tones.busy()
