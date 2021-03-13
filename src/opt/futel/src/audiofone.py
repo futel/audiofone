@@ -162,10 +162,12 @@ def play_audio_after_ring(soundfile):
 def get_soundfile(number):
     """ Return normalized soundfile name corresponding to number. """
     for filename in os.listdir(audio_directory):
-        # number part is before first underscore
-        if filename.split('_').pop(0) == number:
-            # remove filetype suffix, assume max one dot in filename
-            return filename.split('.').pop(0)
+        # remove everything after first underscore, if there
+        filename = filename.split('_').pop(0)
+        # remove suffix, if there
+        filename = filename.split('.').pop(0)
+        if filename == number:
+            return filename
     return None
 
 def possible_soundfile(number):
@@ -213,6 +215,6 @@ while(True):
         elif soundfile is NumberValidity.NOT_PREFIX:
             go_fast_busy()
         elif soundfile is NumberValidity.POSSIBLE_PREFIX:
-            pass
+            log("possible soundfile %s" % dialed_number)
         else:
             start_number_event(soundfile)
