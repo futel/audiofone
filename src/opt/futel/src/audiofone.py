@@ -163,10 +163,12 @@ def play_audio_after_ring(soundfile):
 def get_soundfile(number):
     """ Return normalized soundfile name corresponding to number. """
     for filename in os.listdir(audio_directory):
-        # number part is before first underscore
+        # Remove suffix, if there, player doesn't want it.
+        # Assume only one . in filename.
+        filename = filename.split('.').pop(0)
         if filename.split('_').pop(0) == number:
-            # remove filetype suffix, assume max one dot in filename
-            return filename.split('.').pop(0)
+            # Number is everything before first _ in filename, match.
+            return filename
     return None
 
 def possible_soundfile(number):
