@@ -59,7 +59,7 @@ def play_busy():
 def go_busy():
     """ Set hookstate and play tones. """
     global hookstate
-    log("going BUSY")
+    log("go_busy BUSY_WAIT")
     hookstate = Hookstate.BUSY_WAIT
     tones.off()
     tones.busy()
@@ -67,7 +67,7 @@ def go_busy():
 def go_fast_busy():
     """ Set hookstate and play tones. """
     global hookstate
-    log("going BUSY")
+    log("go_fast_busy BUSY_WAIT")
     hookstate = Hookstate.BUSY_WAIT
     tones.off()
     tones.busy()
@@ -214,6 +214,6 @@ while(True):
         elif soundfile is NumberValidity.NOT_PREFIX:
             go_fast_busy()
         elif soundfile is NumberValidity.POSSIBLE_PREFIX:
-            pass
+            log("possible soundfile %s" % dialed_number)
         else:
             start_number_event(soundfile)
