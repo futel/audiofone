@@ -45,3 +45,29 @@ OSC (open sound control) messages over local UDP.
 listens on port 6066 for osc messages.
 It is run from supervisord, you can steal the command
 from `src/etc/supervisor/conf.d/puredata.conf`.
+
+# sound files
+
+Sound files may be placed on a USB stick.  For example, a sound file containing
+the sound to play when the user dials 1-800-555-1212 might be:
+
+`18005551212-information-thing.wav`
+
+The naming convention is:
+
+`<number>[-any-suffix].wav`
+
+Where:
+* `<number>` is the phone number to dial.  It may not start with zero and may not contain any special digits (no *, #, A, B, C, D).  Do not put dashes in the number.
+* after the number you may put an optional hyphen and arbitrary descriptive text.  
+The suffix/description should not contain spaces.
+
+Avoid having two files with the same number prefix (behavior is undefined).
+
+## wave format
+
+The `.wav` files must be:
+* PCM
+* 16-bit little endian (LE)
+* 44.1kHz sampling rate
+* Mono (preferred) or stereo (if stereo, only the left channel will be played)
