@@ -18,7 +18,7 @@ import random
 GPIO.setmode(GPIO.BOARD)
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
-audio_directory = "/opt/futel/src/audio"
+audio_directory = "/mnt/futel"
 
 # globals for the ongoing interaction
 dialed_number = ''
