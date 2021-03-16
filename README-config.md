@@ -1,6 +1,7 @@
 ## Configuring content
 
-USB drive
+Sound files must be placed on a mounted USB drive.
+
 * VFAT filesystem
 * content in root directory
 * WAV files
@@ -10,3 +11,11 @@ USB drive
  * examples
   * 5035555555_monologue.wav
   * 503555555.wav
+
+## File format
+
+The sound file format is:
+* PCM
+* 16-bit little endian (LE)
+* 44.1kHz sampling rate
+* Mono (preferred) or stereo (if stereo, only the left channel will be played)
