@@ -23,5 +23,5 @@
     path: /mnt/futel
     src: /dev/sda1
     fstype: vfat
-    opts: defaults,auto,users,rw
+    opts: defaults,auto,users,ro,nofail
     state: mounted
