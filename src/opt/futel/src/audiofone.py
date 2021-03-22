@@ -129,11 +129,11 @@ def have_number(number):
     if(invalid_dialplan(number)):
         return NumberValidity.INVALID_KEY
     soundfile = get_soundfile(number)
-    if soundfile is None:
-        if not possible_soundfile(number):
-            return NumberValidity.NOT_PREFIX
-        return NumberValidity.POSSIBLE_PREFIX
-    return soundfile
+    if soundfile is not None:
+        return soundfile
+    if not possible_number(number):
+        return NumberValidity.NOT_PREFIX
+    return NumberValidity.POSSIBLE_PREFIX
 
 def start_number_event(soundfile):
     """
@@ -160,28 +160,26 @@ def play_audio_after_ring(soundfile):
     hookstate = Hookstate.PLAYING_AUDIO
     ring_timer = None
 
+def soundfile_number(filename):
+    """ Return number corresponding to soundfile. """
+    filename = filename.split('.').pop(0)
+    return filename.split('_').pop(0)
+
 def get_soundfile(number):
     """ Return normalized soundfile name corresponding to number. """
     for filename in os.listdir(audio_directory):
-        # Remove suffix, if there, player doesn't want it.
-        # Assume only one . in filename.
-        filename = filename.split('.').pop(0)
-        if filename.split('_').pop(0) == number:
-            # Number is everything before first _ in filename, match.
-            return filename
+        if soundfile_number(filename) == number:
+            # Remove suffix, if there, player doesn't want it.
+            # Assume only one . in filename.
+            return filename.split('.').pop(0)
     return None
 
-def possible_soundfile(number):
-    """ Return True if number is a prefix of a number matching a soundfile. """
-    # Indicating as soon as a number is not a valid prefix is useful for notifying
-    # as soon as possible when a user can't continue to a valid number. We do it
-    # this way because we don't know how long the valid numbers are. We could check
-    # for the shortest valid number and only notify on that length, but the
-    # immediate feedback makes it easy for the user.
-    for filename in os.listdir(audio_directory):
-        # number part is before first underscore
-        if filename.split('_').pop(0).startswith(number):
-            return True
+def possible_number(number):
+    """ Return True if number should not receive an invalid notification. """
+    possible_numbers = [
+        soundfile_number(filename) for filename in os.listdir(audio_directory)]
+    if len(number) < max(len(number) for number in possible_numbers):
+        return True
     return False
 
 def invalid_dialplan(number):
