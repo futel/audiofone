@@ -60,3 +60,14 @@ OSC (open sound control) messages over local UDP.
 listens on port 6066 for osc messages.
 Pd is run from supervisord, you can steal the command
 from `src/etc/supervisor/conf.d/puredata.conf`.
+
+# normalizing audio
+
+You can use the `normalize-audio` utility to normalize the volume of the audio files.
+Warning: this will destructively modify the files in-place (keep a copy as originals prior to doing this).
+
+```
+sudo apt update && sudo apt install normalize-audio
+normalize-audio *.wav
+
+```
