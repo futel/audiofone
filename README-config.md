@@ -19,3 +19,14 @@ The sound file format is:
 * 16-bit little endian (LE)
 * 44.1kHz sampling rate
 * Mono (preferred) or stereo (if stereo, only the left channel will be played)
+
+## normalizing audio
+
+You can use the `normalize-audio` utility to normalize the volume of the audio files.
+Warning: this will destructively modify the files in-place (keep a copy as originals prior to doing this).
+
+```
+sudo apt update && sudo apt install normalize-audio
+normalize-audio *.wav
+
+```
