@@ -2,8 +2,8 @@
 - hosts: pibox
   become: true
   tasks:
-    - include: deploy/ssh.yml
-    - include: deploy/packages.yml
-    - include: deploy/filesystem.yml
-    - include: deploy/helpers.yml
-    - include: deploy/supervisor.yml
+    - include_tasks: deploy/ssh.yml
+    - include_tasks: deploy/packages.yml
+    - include_tasks: deploy/filesystem.yml
+    - include_tasks: deploy/helpers.yml
+    - include_tasks: deploy/supervisor.yml

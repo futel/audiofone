@@ -8,17 +8,21 @@
 - name: install packages
   apt:
     name:
-      - python-rpi.gpio
+      #- python-rpi.gpio
       - python3-rpi.gpio
+      #- python-gpiozero
       - python3-gpiozero
-      - python-gpiozero
-      - python-pip
+      #- python-pip
       - python3-pip
       - supervisor
       - puredata
 - name: additional python packages
-  shell:
-    python3 -m pip install python-osc
+  ansible.builtin.pip:
+    break_system_packages: true
+    name:
+      - python-osc
+  # shell:
+  #   python3 -m pip install python-osc --break-system-packages
 
 # - name: reboot
 #   shell:

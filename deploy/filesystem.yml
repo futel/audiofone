@@ -19,7 +19,7 @@
 # This should be true for the first drive connected?
 # Target will fail to boot without drive with this fstab entry?
 - name: mount usb flash drive
-  mount:
+  ansible.posix.mount:
     path: /mnt/futel
     src: /dev/sda1
     fstype: vfat
