@@ -27,3 +27,23 @@ echo enable_uart=1 >> /boot/config.txt
 Any time you need to run ansible commands now, just source the activate script
 mentioned above.
 
+# Hardware / Pinouts
+
+* GPIO  7 - pin26 - Hookswitch (other side to ground pin)
+* GPIO 17 - pin11 - Input - keypad col 0
+* GPIO 27 - pin13 - Input - keypad col 1
+* GPIO 22 - pin15 - Input - keypad col 2
+* GPIO 12 - pin32 - Output - keypad row 0
+* GPIO 16 - pin36 - Output - keypad row 1
+* GPIO 20 - pin38 - Output - keypad row 2
+* GPIO 21 - pin40 - Output - keypad row 3
+* headphone jack -> earpiece audio
+
+# pd patch
+
+Audio is played through pd.  Python just commands it through
+OSC (open sound control) messages over local UDP.
+
+listens on port 6066 for osc messages.
+Pd is run from supervisord, you can steal the command
+from `src/etc/supervisor/conf.d/puredata.conf`.

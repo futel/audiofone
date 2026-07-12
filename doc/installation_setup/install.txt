@@ -1,0 +1,17 @@
+1. With rear of backplate toward you, thread cable through hole and through channel and notch at bottom, with small end of cable towards front of plate and large end of cable towards notch.
+
+2. Mount backplate to wall with screws or bolts through appropriate holes. Have one or two feet of USB cable extending past front. Make sure cable exits bottom of plate in notch to avoid pinching. If cable is be exposed where extending out of bottom of backplate, consider strain relief such as stapling or taping cable to wall, or use channel.
+
+3. Screw hanger bolts into back of phone case.
+
+4. Unlatch, unlock, and open phone case as described in public-installation.pdf.
+
+5. Thread USB cable through hole in rear phone case.
+
+6. Hang rear phone case on backplate as described in public-installation.pdf. Ensure that cable is not pinched.
+
+7. If desired, secure rear phone case to backplate by attaching bolts to backplate through holes in rear phone case as described in public-installation.pdf.
+
+7. Plug USB cable into USB slot of board. If cable is be exposed where extending out of bottom of backplate, consider strain relief such as zip tying cable to interior of phone case.
+
+8. Close, latch, and lock phone case as described in public-installation.pdf.
