@@ -1,9 +1,16 @@
-
 import time
 from pythonosc import udp_client
 
+# netreceive port in the audiofone.pd patch
+NETRECEIVE_PORT = 6066
+
+# The path seperator format for the messages is for osc, puredata gets the whole
+# thing.
+
+
 class Tones:
-    def __init__(self, host = '127.0.0.1', port = 6066):
+    """Send UDP messages to the puredata audiofone patch."""
+    def __init__(self, host='127.0.0.1', port=NETRECEIVE_PORT):
         self.client = udp_client.SimpleUDPClient(host, port)
 
     def dialtone(self):
