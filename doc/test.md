@@ -1,4 +1,6 @@
-# Test on pi:
+# Test on pi
+
+## Manual tests
 
 On boot, supervisord will launch the main audiofone.py app and
 puredata.
@@ -13,4 +15,13 @@ puredata.
 * hang up, dial an invalid number, verify that you hear a fast busy after the first invalid keypress
 * run alsamixer and verify that your preferred volume persists across reboots
 
-Logs are in `/var/log/supervisor/puredata.log` and `/var/log/supervisor/audiofone.log`.
+## Logs
+
+- /var/log/supervisor/puredata.log
+- /var/log/supervisor/audiofone.log
+
+# Local test and development
+
+PD preferences needed when testing on my ubuntu box:
+- audio system ALSA
+- input/output devices: the 2nd "HD-Audio Generic (hardware)" in the list
