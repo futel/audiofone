@@ -1,4 +1,3 @@
-
 import time
 import RPi.GPIO as GPIO
 from log import log
@@ -22,6 +21,11 @@ DIGITS = [
 ]
 
 class Keypad:
+    """
+    Detect events on GPIO pins and call callbacks if they are opened or
+    closed.
+    For detecting when keys are pressed or released.
+    """
 
     def __init__(self, on_keydown):
         self._cancelled = False

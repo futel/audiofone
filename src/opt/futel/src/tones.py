@@ -9,7 +9,10 @@ NETRECEIVE_PORT = 6066
 
 
 class Tones:
-    """Send UDP messages to the puredata audiofone patch."""
+    """
+    Send messages to the puredata audiofone patch with a UDP client.
+    For causing the patch to start or stop playing sounds.
+    """
     def __init__(self, host='127.0.0.1', port=NETRECEIVE_PORT):
         self.client = udp_client.SimpleUDPClient(host, port)
 

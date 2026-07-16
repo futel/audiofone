@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-# main audiofone entrypoint
+Main audiofone entrypoint.
 """
 
 from hookswitch import Hookswitch
@@ -16,6 +16,7 @@ import threading
 import random
 
 GPIO.setmode(GPIO.BOARD)
+# GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
 audio_directory = "/mnt/futel"
@@ -96,6 +97,7 @@ def cancel_ring_timer():
     ring_timer = None
 
 def on_keydown(key):
+    """Callback for when a key is pressed."""
     global hookstate
     if(hookstate == Hookstate.ON): return
     log("KEYDOWN %s hooksate %s" % (key, hookstate))
@@ -106,6 +108,7 @@ def on_keydown(key):
         start_busy_timer()
 
 def on_handset_pickup():
+    """Callback for when the hookswitch is raised."""
     global hookstate
     global dialed_number
     log("Off hook")
@@ -115,6 +118,10 @@ def on_handset_pickup():
     start_busy_timer()
 
 def on_hangup():
+    """
+    Callback for when the hookswitch is lowered.
+    Set hookstate, cancel all tones and timers.
+    """
     global hookstate
     log("Hangup")
     hookstate = Hookstate.ON
@@ -189,14 +196,17 @@ def invalid_dialplan(number):
     if "*" in number: return True
     return False
 
-keypad = Keypad(on_keydown)
-
+# Hookswitch monitor. This will call the callbacks without blocking.
 hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
                         on_hook_down = on_hangup,
                         pin = HOOKSWITCH_PIN)
 hookswitch.run()
 
+# Keypad monitor, we use it to busy wait for events.
+keypad = Keypad(on_keydown)
+
 while(True):
+    # Busy wait until we get a key.
     k = keypad.read_key()
     if(k == ''):
         log("key read cancelled")
@@ -207,6 +217,7 @@ while(True):
     else:
         tones.keys_off()
     if(hookstate == Hookstate.OFF):
+        # Collect the number and add it to our global dialed_number.
         dialed_number = dialed_number + k
         soundfile = have_number(dialed_number)
         if soundfile is NumberValidity.INVALID_KEY:
