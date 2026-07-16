@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """
 Main audiofone entrypoint.
+To be run continuously on the pi.
 """
 
 from hookswitch import Hookswitch
