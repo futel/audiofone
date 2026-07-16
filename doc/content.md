@@ -2,7 +2,6 @@
 
 Sound files must be placed on a mounted USB drive.
 
-* VFAT filesystem
 * content in root directory
 * WAV files
 * filenames in the format NUMBER[_TEXT].wav
