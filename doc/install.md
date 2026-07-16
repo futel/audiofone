@@ -33,7 +33,16 @@ See content.md.
 
 # Install on destination hardware
 
-- update deploy/hosts for correct pibox ip address
+## Test
+
+Run the automated tests, see test.py.
+
+## Configure for current installation
+
+Connec the pi to the local network. Update deploy/hosts for correct pibox ip address.
+
+## Install
+
 - ansible-playbook -i deploy/hosts playbook.yml
 - copy content
   - XXX
@@ -43,3 +52,8 @@ See content.md.
   - adjust the volume and exit alsamixer
 - reboot the pi
   - sudo shutdown -r now
+
+## Test
+
+Run the manual tests, see test.py.
+

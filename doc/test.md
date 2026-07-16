@@ -1,3 +1,16 @@
+# Test locally
+
+## Setup
+
+See "Set up local testing environment" in install.md.
+
+## Run unit tests
+
+```
+source venv/bin/activate
+pytest test/
+```
+
 # Test on pi
 
 ## Manual tests
