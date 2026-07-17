@@ -25,5 +25,5 @@ def gpio():
     """Reset the mocked RPi.GPIO module's call history before each test."""
     import RPi.GPIO as GPIO
 
-    GPIO.reset_mock()
+    GPIO.reset_mock(return_value=True, side_effect=True)
     return GPIO
