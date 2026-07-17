@@ -1,3 +1,6 @@
 env
 ansible-env
 deploy/hosts-breedx
+venv
+__pycache__
+.pytest_cache

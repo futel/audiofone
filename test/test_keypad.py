@@ -9,33 +9,53 @@ ROW_PINS = (PINS["row0"], PINS["row1"], PINS["row2"], PINS["row3"])
 COL_PINS = (PINS["col0"], PINS["col1"], PINS["col2"])
 
 
-def _event_detected_at(trigger_index):
-    """event_detected side_effect that returns True only on the Nth call."""
-    calls = {"n": -1}
-
-    def side_effect(pin):
-        calls["n"] += 1
-        return calls["n"] == trigger_index
-
-    return side_effect
+def _pin_names(pins):
+    return ["GPIO%d" % pin for pin in pins]
 
 
-def test_init_configures_rows_as_outputs(gpio):
-    Keypad(MagicMock())
-    for row_pin in ROW_PINS:
-        gpio.setup.assert_any_call(row_pin, gpio.OUT)
+def _script_columns(kp, is_pressed_values):
+    """Replace the keypad's column devices with fakes that yield the given
+    is_pressed values across the scan (all three columns share the sequence,
+    which is checked in row*3+col order, mirroring the real scan). After the
+    sequence is exhausted, the last value repeats."""
+    seq = iter(is_pressed_values)
+    default = is_pressed_values[-1] if is_pressed_values else False
+
+    def make_column():
+        class FakeColumn:
+            @property
+            def is_pressed(self):
+                return next(seq, default)
+
+        return FakeColumn()
+
+    kp._cols = [make_column(), make_column(), make_column()]
 
 
-def test_init_configures_columns_as_input_with_pullup(gpio):
-    Keypad(MagicMock())
-    for col_pin in COL_PINS:
-        gpio.setup.assert_any_call(col_pin, gpio.IN, pull_up_down=gpio.PUD_UP)
+def _pressed_at(index):
+    """is_pressed sequence with a single press at the Nth check, then release."""
+    return [False] * index + [True, False]
 
 
-def test_init_drives_all_rows_high(gpio):
-    Keypad(MagicMock())
-    for row_pin in ROW_PINS:
-        gpio.output.assert_any_call(row_pin, gpio.HIGH)
+def test_init_configures_rows_as_outputs():
+    kp = Keypad(MagicMock())
+    assert [d.pin.info.name for d in kp._rows] == _pin_names(ROW_PINS)
+    for device in kp._rows:
+        assert device.pin.function == "output"
+
+
+def test_init_configures_columns_as_input_with_pullup():
+    kp = Keypad(MagicMock())
+    assert [d.pin.info.name for d in kp._cols] == _pin_names(COL_PINS)
+    for device in kp._cols:
+        assert device.pin.function == "input"
+        assert device.pin.pull == "up"
+
+
+def test_init_drives_all_rows_high():
+    kp = Keypad(MagicMock())
+    for device in kp._rows:
+        assert device.value == 1
 
 
 def test_cancel_sets_cancelled_flag():
@@ -45,47 +65,20 @@ def test_cancel_sets_cancelled_flag():
     assert kp._cancelled is True
 
 
-def test_all_rows_high_drives_every_row_pin_high(gpio):
+def test_all_rows_high_drives_every_row_pin_high():
     kp = Keypad(MagicMock())
-    gpio.output.reset_mock()
+    for device in kp._rows:
+        device.off()
     kp._all_rows_high()
-    assert gpio.output.call_count == 4
-    for row_pin in ROW_PINS:
-        gpio.output.assert_any_call(row_pin, gpio.HIGH)
-
-
-def test_remove_detect_removes_every_column(gpio):
-    kp = Keypad(MagicMock())
-    gpio.remove_event_detect.reset_mock()
-    kp._remove_detect()
-    assert gpio.remove_event_detect.call_count == 3
-    for col_pin in COL_PINS:
-        gpio.remove_event_detect.assert_any_call(col_pin)
-
-
-def test_enable_safely_registers_edge_detect(gpio):
-    kp = Keypad(MagicMock())
-    kp._enable_safely(PINS["col0"], gpio.BOTH)
-    gpio.add_event_detect.assert_called_once_with(
-        PINS["col0"], gpio.BOTH, bouncetime=150
-    )
-
-
-def test_enable_safely_retries_once_after_failure(gpio):
-    kp = Keypad(MagicMock())
-    gpio.add_event_detect.side_effect = [RuntimeError("busy"), None]
-    kp._enable_safely(PINS["col0"], gpio.BOTH)
-    assert gpio.add_event_detect.call_count == 2
-    gpio.add_event_detect.assert_called_with(
-        PINS["col0"], gpio.BOTH, bouncetime=150
-    )
+    for device in kp._rows:
+        assert device.value == 1
 
 
 def test_read_key_returns_empty_string_when_cancelled_before_any_press(
-    monkeypatch, gpio
+    monkeypatch,
 ):
-    gpio.event_detected.return_value = False
     kp = Keypad(MagicMock())
+    _script_columns(kp, [False])  # nothing ever pressed
 
     def fake_sleep(seconds):
         kp.cancel()
@@ -105,14 +98,13 @@ def test_read_key_returns_empty_string_when_cancelled_before_any_press(
     ],
 )
 def test_read_key_detects_keypress_at_each_position(
-    monkeypatch, gpio, row, col, expected_key
+    monkeypatch, row, col, expected_key
 ):
     monkeypatch.setattr(keypad_module.time, "sleep", lambda seconds: None)
-    gpio.event_detected.side_effect = _event_detected_at(row * 3 + col)
-    gpio.input.return_value = 1  # released by the time it's polled
 
     on_keydown = MagicMock()
     kp = Keypad(on_keydown)
+    _script_columns(kp, _pressed_at(row * 3 + col))
 
     result = kp.read_key()
 
@@ -120,25 +112,25 @@ def test_read_key_detects_keypress_at_each_position(
     on_keydown.assert_called_once_with(expected_key)
 
 
-def test_read_key_polls_until_key_is_released(monkeypatch, gpio):
+def test_read_key_polls_until_key_is_released(monkeypatch):
     monkeypatch.setattr(keypad_module.time, "sleep", lambda seconds: None)
-    gpio.event_detected.side_effect = _event_detected_at(0)  # row0, col0 -> '1'
-    gpio.input.side_effect = [0, 0, 1]  # still held twice, then released
 
-    kp = Keypad(MagicMock())
+    on_keydown = MagicMock()
+    kp = Keypad(on_keydown)
+    # row0, col0 -> '1': pressed at first check, held twice, then released.
+    _script_columns(kp, [True, True, True, False])
+
     result = kp.read_key()
 
     assert result == "1"
-    assert gpio.input.call_count == 3
+    on_keydown.assert_called_once_with("1")
 
 
 def test_read_key_returns_empty_string_if_cancelled_while_waiting_for_release(
-    monkeypatch, gpio
+    monkeypatch,
 ):
-    gpio.event_detected.side_effect = _event_detected_at(0)  # row0, col0 -> '1'
-    gpio.input.return_value = 0  # never released
-
     kp = Keypad(MagicMock())
+    _script_columns(kp, [True])  # pressed and never released
 
     def fake_sleep(seconds):
         kp.cancel()

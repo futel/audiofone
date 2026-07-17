@@ -1,2 +1,4 @@
 pytest
 python-osc
+gpiozero
+

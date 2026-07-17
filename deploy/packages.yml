@@ -8,11 +8,7 @@
 - name: install packages
   apt:
     name:
-      #- python-rpi.gpio
-      - python3-rpi.gpio
-      #- python-gpiozero
       - python3-gpiozero
-      #- python-pip
       - python3-pip
       - supervisor
       - puredata

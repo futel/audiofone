@@ -1,78 +1,73 @@
+import time
 from unittest.mock import MagicMock
+
+from gpiozero import Button
 
 from hookswitch import Hookswitch
 
 
-def _make_hookswitch(pin=26):
-    on_hook_up = MagicMock(name="on_hook_up")
-    on_hook_down = MagicMock(name="on_hook_down")
+def _named_mock(name):
+    # gpiozero introspects a callback's signature (and its __name__) when it is
+    # assigned to when_pressed/when_released, so the mock needs a __name__.
+    callback = MagicMock(name=name)
+    callback.__name__ = name
+    return callback
+
+
+def _make_hookswitch(pin=7):
+    on_hook_up = _named_mock("on_hook_up")
+    on_hook_down = _named_mock("on_hook_down")
     hookswitch = Hookswitch(
         on_hook_down=on_hook_down, on_hook_up=on_hook_up, pin=pin)
     return hookswitch, on_hook_up, on_hook_down
 
 
-def _state_changed_callback(gpio):
-    """Return the callback that run() registered with add_event_detect."""
-    _, kwargs = gpio.add_event_detect.call_args
-    return kwargs["callback"]
+def _wait_for(predicate, timeout=1.0):
+    """Wait for gpiozero's event thread to deliver a callback."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return
+        time.sleep(0.005)
 
 
-def test_default_pin_is_26():
+def test_default_pin_is_7():
     hookswitch = Hookswitch(on_hook_down=MagicMock(), on_hook_up=MagicMock())
-    assert hookswitch._pin == 26
+    assert hookswitch._pin == 7
 
 
-def test_run_configures_pin_as_input_with_pullup(gpio):
-    hookswitch, _, _ = _make_hookswitch(pin=26)
-    hookswitch.run()
-    gpio.setup.assert_called_once_with(26, gpio.IN, pull_up_down=gpio.PUD_UP)
-
-
-def test_run_uses_configured_pin(gpio):
+def test_run_configures_button_on_pin_with_pullup():
     hookswitch, _, _ = _make_hookswitch(pin=7)
     hookswitch.run()
-    gpio.setup.assert_called_once_with(7, gpio.IN, pull_up_down=gpio.PUD_UP)
-    args, _ = gpio.add_event_detect.call_args
-    assert args[0] == 7
+    assert isinstance(hookswitch._button, Button)
+    assert hookswitch._button.pin.info.name == "GPIO7"
+    assert hookswitch._button.pin.pull == "up"
 
 
-def test_run_registers_edge_detection_for_both_directions(gpio):
+def test_run_uses_configured_pin():
     hookswitch, _, _ = _make_hookswitch(pin=26)
     hookswitch.run()
-    gpio.add_event_detect.assert_called_once()
-    args, kwargs = gpio.add_event_detect.call_args
-    assert args[0] == 26
-    assert args[1] == gpio.BOTH
-    assert callable(kwargs["callback"])
+    assert hookswitch._button.pin.info.name == "GPIO26"
 
 
-def test_state_changed_calls_on_hook_up_when_input_is_low(gpio):
-    hookswitch, on_hook_up, on_hook_down = _make_hookswitch(pin=26)
+def test_calls_on_hook_up_when_pin_goes_low():
+    hookswitch, on_hook_up, on_hook_down = _make_hookswitch(pin=7)
     hookswitch.run()
-    gpio.input.return_value = 0
 
-    _state_changed_callback(gpio)(26)
+    hookswitch._button.pin.drive_low()
 
+    _wait_for(lambda: on_hook_up.called)
     on_hook_up.assert_called_once()
     on_hook_down.assert_not_called()
 
 
-def test_state_changed_calls_on_hook_down_when_input_is_high(gpio):
-    hookswitch, on_hook_up, on_hook_down = _make_hookswitch(pin=26)
+def test_calls_on_hook_down_when_pin_goes_high():
+    hookswitch, on_hook_up, on_hook_down = _make_hookswitch(pin=7)
     hookswitch.run()
-    gpio.input.return_value = 1
+    hookswitch._button.pin.drive_low()
+    _wait_for(lambda: on_hook_up.called)
 
-    _state_changed_callback(gpio)(26)
+    hookswitch._button.pin.drive_high()
 
+    _wait_for(lambda: on_hook_down.called)
     on_hook_down.assert_called_once()
-    on_hook_up.assert_not_called()
-
-
-def test_state_changed_reads_the_channel_it_is_invoked_with(gpio):
-    hookswitch, _, _ = _make_hookswitch(pin=26)
-    hookswitch.run()
-    gpio.input.return_value = 1
-
-    _state_changed_callback(gpio)(26)
-
-    gpio.input.assert_called_once_with(26)

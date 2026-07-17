@@ -8,7 +8,6 @@ from hookswitch import Hookswitch
 from keypad import Keypad
 from tones import Tones
 from log import log
-import RPi.GPIO as GPIO
 
 from enum import Enum, auto
 import os
@@ -16,8 +15,8 @@ import time
 import threading
 import random
 
-# GPIO pin on the pi connected to the hookswitch.
-HOOKSWITCH_PIN = 26
+# BCM GPIO pin on the pi connected to the hookswitch.
+HOOKSWITCH_PIN = 7
 BUSY_TIMEOUT = 15.0 # seconds
 audio_directory = "/mnt/futel"
 
@@ -203,7 +202,6 @@ def main():
     global hookstate
     global dialed_number
 
-    GPIO.setmode(GPIO.BOARD)
     tones = Tones()
     tones.off()
 

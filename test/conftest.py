@@ -1,6 +1,5 @@
 import os
 import sys
-from unittest.mock import MagicMock
 
 import pytest
 
@@ -10,20 +9,18 @@ SRC_DIR = os.path.abspath(
 if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 
-# RPi.GPIO only installs on real Raspberry Pi hardware, so tests substitute a
-# mock module in its place. This must happen before any module under test
-# imports RPi.GPIO.
-gpio_mock = MagicMock(name="RPi.GPIO")
-rpi_mock = MagicMock(name="RPi")
-rpi_mock.GPIO = gpio_mock
-sys.modules["RPi"] = rpi_mock
-sys.modules["RPi.GPIO"] = gpio_mock
+from gpiozero import Device
+from gpiozero.pins.mock import MockFactory
 
 
 @pytest.fixture(autouse=True)
-def gpio():
-    """Reset the mocked RPi.GPIO module's call history before each test."""
-    import RPi.GPIO as GPIO
-
-    GPIO.reset_mock(return_value=True, side_effect=True)
-    return GPIO
+def mock_factory():
+    """
+    gpiozero talks to real hardware by default, so tests substitute its
+    mock pin factory. A fresh factory per test isolates pin state.
+    """
+    factory = MockFactory()
+    Device.pin_factory = factory
+    yield factory
+    factory.reset()
+    Device.pin_factory = None
