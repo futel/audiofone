@@ -39,7 +39,7 @@ Run the automated tests, see test.py.
 
 ## Configure for current installation
 
-Connec the pi to the local network. Update deploy/hosts for correct pibox ip address.
+Connect the pi to the local network. Update deploy/hosts for correct pibox ip address.
 
 ## Install
 
