@@ -9,6 +9,8 @@
   apt:
     name:
       - python3-gpiozero
+      # lgpio is gpiozero's pin factory on recent Pi OS
+      - python3-lgpio
       - python3-pip
       - supervisor
       - puredata
