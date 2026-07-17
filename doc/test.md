@@ -28,10 +28,16 @@ puredata.
 * hang up, dial an invalid number, verify that you hear a fast busy after the first invalid keypress
 * run alsamixer and verify that your preferred volume persists across reboots
 
-## Logs
+## Monitoring
+
+## logs
 
 - /var/log/supervisor/puredata.log
 - /var/log/supervisor/audiofone.log
+
+## status
+
+sudo supervisorctl status
 
 # Local test and development
 
