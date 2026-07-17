@@ -16,7 +16,6 @@ import time
 import threading
 import random
 
-GPIO.setmode(GPIO.BOARD)
 # GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 26
 BUSY_TIMEOUT = 15.0 # seconds
@@ -26,8 +25,8 @@ audio_directory = "/mnt/futel"
 dialed_number = ''
 busy_timer = None
 ring_timer = None
-tones = Tones()
-tones.off()
+tones = None
+keypad = None
 
 
 class NumberValidity(Enum):
@@ -197,35 +196,50 @@ def invalid_dialplan(number):
     if "*" in number: return True
     return False
 
-# Hookswitch monitor. This will call the callbacks without blocking.
-hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
-                        on_hook_down = on_hangup,
-                        pin = HOOKSWITCH_PIN)
-hookswitch.run()
+def main():
+    """ Set up hardware and run the read/dispatch loop forever. """
+    global tones
+    global keypad
+    global hookstate
+    global dialed_number
 
-# Keypad monitor, we use it to busy wait for events.
-keypad = Keypad(on_keydown)
+    GPIO.setmode(GPIO.BOARD)
+    tones = Tones()
+    tones.off()
 
-while(True):
-    # Busy wait until we get a key.
-    k = keypad.read_key()
-    if(k == ''):
-        log("key read cancelled")
-        continue
-    log(">> Key released => %s" %(k))
-    if hookstate == Hookstate.OFF:
-        tones.off()
-    else:
-        tones.keys_off()
-    if(hookstate == Hookstate.OFF):
-        # Collect the number and add it to our global dialed_number.
-        dialed_number = dialed_number + k
-        soundfile = have_number(dialed_number)
-        if soundfile is NumberValidity.INVALID_KEY:
-            go_busy()
-        elif soundfile is NumberValidity.NOT_PREFIX:
-            go_fast_busy()
-        elif soundfile is NumberValidity.POSSIBLE_PREFIX:
-            log("possible soundfile %s" % dialed_number)
+    # Hookswitch monitor. This will call the callbacks without blocking.
+    hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
+                            on_hook_down = on_hangup,
+                            pin = HOOKSWITCH_PIN)
+    hookswitch.run()
+
+    # Keypad monitor, we use it to busy wait for events.
+    keypad = Keypad(on_keydown)
+
+    while(True):
+        # Busy wait until we get a key.
+        k = keypad.read_key()
+        if(k == ''):
+            log("key read cancelled")
+            continue
+        log(">> Key released => %s" %(k))
+        if hookstate == Hookstate.OFF:
+            tones.off()
         else:
-            start_number_event(soundfile)
+            tones.keys_off()
+        if(hookstate == Hookstate.OFF):
+            # Collect the number and add it to our global dialed_number.
+            dialed_number = dialed_number + k
+            soundfile = have_number(dialed_number)
+            if soundfile is NumberValidity.INVALID_KEY:
+                go_busy()
+            elif soundfile is NumberValidity.NOT_PREFIX:
+                go_fast_busy()
+            elif soundfile is NumberValidity.POSSIBLE_PREFIX:
+                log("possible soundfile %s" % dialed_number)
+            else:
+                start_number_event(soundfile)
+
+
+if __name__ == "__main__":
+    main()
