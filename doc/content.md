@@ -1,9 +1,10 @@
-## Configuring content
+# Configuring content
+
+# File location
 
 Sound files must be placed on a mounted USB drive.
 
 * content in root directory
-* WAV files
 * filenames in the format NUMBER[_TEXT].wav
  * NUMBER is the number the user enters for that content to be played
  * TEXT is arbitrary
@@ -13,6 +14,8 @@ Sound files must be placed on a mounted USB drive.
 
 ## File format
 
+Sound files must be WAV.
+
 The sound file format is:
 * PCM
 * 16-bit little endian (LE)
@@ -21,11 +24,9 @@ The sound file format is:
 
 ## normalizing audio
 
-You can use the `normalize-audio` utility to normalize the volume of the audio files.
+Use the `normalize-audio` utility to normalize the volume of the audio files.
 Warning: this will destructively modify the files in-place (keep a copy as originals prior to doing this).
 
 ```
-sudo apt update && sudo apt install normalize-audio
 normalize-audio *.wav
-
 ```

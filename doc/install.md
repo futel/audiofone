@@ -2,20 +2,19 @@
 
 - debian trixie or forky or...
   - ansible
-  - XXX ansible.posix?
+  - normalize-audio
 - raspberry pi target box
   - with usb drive attached
-  - XXX sshpass?
 - content
-  - XXX
+  - see content.md
 
 # Setup
 
 To be done once.
 
-## Normalize content
+## Set up content
 
-See content.md.
+See content.md. Normalize, put sound files on drive, attach drive to pi.
 
 ## Set up local testing environment
 
