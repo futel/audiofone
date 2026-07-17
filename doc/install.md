@@ -3,7 +3,8 @@
 - debian trixie or forky or...
   - ansible
   - XXX ansible.posix?
-- raspberry pi target box with usb drive
+- raspberry pi target box
+  - with usb drive attached
   - XXX sshpass?
 - content
   - XXX
@@ -22,20 +23,21 @@ See content.md.
 - source venv/bin/activate
 - pip install -r requirements.txt
 
-## Set up destination hardware
-
-- install Raspberry Pi OS lite on the pi
-  - https://www.raspberrypi.org/software/operating-systems/
-- enable ssh on the pi with default pi/raspberry login
-  - touch /boot/ssh
-- format USB drive with VFAT filesystem
-- plug USB drive into pi
-
-# Install on destination hardware
-
 ## Test
 
-Run the automated tests, see test.py.
+Run the automated tests, see test.md.
+
+## Set up destination media
+
+- install Raspberry Pi OS lite on the boot media
+  - https://www.raspberrypi.org/software/operating-systems/
+- enable ssh on the pi with default pi/raspberry login on the boot media
+  - https://www.raspberrypi.com/documentation/computers/getting-started.html#manual-ssh-setup
+  - touch /ssh on the bootfs partition
+  - echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl
+  - echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi
+
+# Install on destination hardware
 
 ## Configure for current installation
 
