@@ -19,6 +19,7 @@
     break_system_packages: true
     name:
       - python-osc
+      - transitions
   # shell:
   #   python3 -m pip install python-osc --break-system-packages
 

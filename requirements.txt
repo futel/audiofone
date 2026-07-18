@@ -1,4 +1,4 @@
+gpiozero
 pytest
 python-osc
-gpiozero
-
+transitions

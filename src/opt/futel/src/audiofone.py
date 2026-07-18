@@ -4,6 +4,7 @@ Main audiofone entrypoint.
 To be run continuously on the pi.
 """
 
+import context
 from hookswitch import Hookswitch
 from keypad import Keypad
 from tones import Tones
@@ -14,6 +15,13 @@ import os
 import time
 import threading
 import random
+
+dialplan = context.dialplan
+# The control flow drives triggers defensively (e.g. a key release or a busy
+# timer can fire in a state the transition isn't defined from), so treat
+# invalid triggers as no-ops instead of raising MachineError.
+# XXX It would be better to add these transitions to the dialplan.
+dialplan.ignore_invalid_triggers = True
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
@@ -34,41 +42,31 @@ class NumberValidity(Enum):
     POSSIBLE_PREFIX = auto()
 
 
-class Hookstate(Enum):
-    ON = auto()                 # hook down
-    OFF = auto()                # hook up and collecting keypresses
-    BUSY_WAIT = auto()
-    RINGING = auto()
-    PLAYING_AUDIO = auto()
-
-
-hookstate = Hookstate.ON
-
 def play_busy():
-    global hookstate
+    global dialplan
     global busy_timer
     # Check for a hookswitch state which should prevent audio, although we
-    # shouldn't be active anyway.
-    # XXX should we instead check for not OFF?
-    if(hookstate == Hookstate.ON):
+    # shouldn't be active anyway, we don't consistently check this, etc.
+    if(dialplan.is_onhook()):
         return
     log("Too long off hook...")
     busy_timer = None
     go_busy()
 
 def go_busy():
-    """ Set hookstate and play tones. """
-    global hookstate
+    """ Set dialplan state and play tones. """
+    global dialplan
     log("go_busy BUSY_WAIT")
-    hookstate = Hookstate.BUSY_WAIT
+    dialplan.dialtone_timeout()
     tones.off()
     tones.busy()
 
 def go_fast_busy():
-    """ Set hookstate and play tones. """
-    global hookstate
-    log("go_fast_busy BUSY_WAIT")
-    hookstate = Hookstate.BUSY_WAIT
+    """ Set dialplan state and play tones. """
+    # XXX same as busy
+    global dialplan
+    log("go_busy BUSY_WAIT")
+    dialplan.dialtone_timeout()
     tones.off()
     tones.busy()
 
@@ -97,21 +95,21 @@ def cancel_ring_timer():
 
 def on_keydown(key):
     """Callback for when a key is pressed."""
-    global hookstate
-    if(hookstate == Hookstate.ON): return
-    log("KEYDOWN %s hooksate %s" % (key, hookstate))
-    if hookstate == Hookstate.OFF: tones.off()
+    global dialplan
+    if(dialplan.is_onhook()):
+        return                  # Ignore keypresses when onhook.
+    log("on_keydown %s" % key)
+    tones.off()
     tones.key(key)
-    if hookstate == Hookstate.OFF:
-        cancel_timers()
-        start_busy_timer()
+    cancel_timers()
+    start_busy_timer()
 
 def on_handset_pickup():
     """Callback for when the hookswitch is raised."""
-    global hookstate
+    global dialplan
     global dialed_number
-    log("Off hook")
-    hookstate = Hookstate.OFF
+    log("on_handset_pickup")
+    dialplan.hook_up()
     dialed_number = ''
     tones.dialtone()
     start_busy_timer()
@@ -119,11 +117,11 @@ def on_handset_pickup():
 def on_hangup():
     """
     Callback for when the hookswitch is lowered.
-    Set hookstate, cancel all tones and timers.
+    Set dialplan state, cancel all tones and timers.
     """
-    global hookstate
-    log("Hangup")
-    hookstate = Hookstate.ON
+    global dialplan
+    log("on_hangup")
+    dialplan.hook_down()
     tones.off()
     keypad.cancel()
     cancel_timers()
@@ -145,25 +143,24 @@ def start_number_event(soundfile):
     """
     Enter ringing state, start thread to play soundfile after timer.
     """
+    global dialplan
     global ring_timer
-    global hookstate
-
     ring_time = random.randrange(4, 13)
     log("Ring for %d seconds" % (ring_time))
     tones.ring()
-    hookstate = Hookstate.RINGING
     cancel_timers()
+    # XXX hookstate = Hookstate.RINGING
     ring_timer = threading.Timer(
         ring_time, lambda: play_audio_after_ring(soundfile))
     ring_timer.start()
 
 def play_audio_after_ring(soundfile):
-    global hookstate
+    global dialplan
     global ring_timer
     log("DEBUG: play() %s" %(soundfile))
     tones.off()
     tones.play_audio(soundfile)
-    hookstate = Hookstate.PLAYING_AUDIO
+    # XXX hookstate = Hookstate.PLAYING_AUDIO
     ring_timer = None
 
 def soundfile_number(filename):
@@ -197,10 +194,10 @@ def invalid_dialplan(number):
 
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
+    global dialplan
+    global dialed_number
     global tones
     global keypad
-    global hookstate
-    global dialed_number
 
     tones = Tones()
     tones.off()
@@ -215,28 +212,31 @@ def main():
     keypad = Keypad(on_keydown)
 
     while(True):
-        # Busy wait until we get a key.
+        # Busy wait until the keypad returns with key up result. Key down
+        # results are handled with a callback, we busy wait for key up.
         k = keypad.read_key()
         if(k == ''):
             log("key read cancelled")
             continue
+        dialplan.key()
         log(">> Key released => %s" %(k))
-        if hookstate == Hookstate.OFF:
-            tones.off()
+
+        if dialplan.is_onhook():
+            tones.keys_off()    # Transition should have handled this.
+            continue            # Ignore keys when onhook.
+
+        tones.off()             # This is a key release, stop playing tones.
+        # Collect the number and add it to our global dialed_number.
+        dialed_number = dialed_number + k
+        soundfile = have_number(dialed_number)
+        if soundfile is NumberValidity.INVALID_KEY:
+            go_busy()
+        elif soundfile is NumberValidity.NOT_PREFIX:
+            go_fast_busy()
+        elif soundfile is NumberValidity.POSSIBLE_PREFIX:
+            log("possible soundfile %s" % dialed_number)
         else:
-            tones.keys_off()
-        if(hookstate == Hookstate.OFF):
-            # Collect the number and add it to our global dialed_number.
-            dialed_number = dialed_number + k
-            soundfile = have_number(dialed_number)
-            if soundfile is NumberValidity.INVALID_KEY:
-                go_busy()
-            elif soundfile is NumberValidity.NOT_PREFIX:
-                go_fast_busy()
-            elif soundfile is NumberValidity.POSSIBLE_PREFIX:
-                log("possible soundfile %s" % dialed_number)
-            else:
-                start_number_event(soundfile)
+            start_number_event(soundfile)
 
 
 if __name__ == "__main__":
