@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 
 import audiofone as audiofone_module
+import context
 from audiofone import NumberValidity
 
 
@@ -24,15 +25,19 @@ class FakeTimer:
 
 @pytest.fixture(autouse=True)
 def reset_state(monkeypatch):
-    # dialplan is a module-level singleton, so reset it to the initial state
-    # rather than monkeypatching (which can't undo state machine transitions).
-    # to_onhook() is an auto-transition valid from any state.
-    audiofone_module.dialplan.to_onhook()
+    tones = MagicMock(name="tones")
+    monkeypatch.setattr(audiofone_module, "tones", tones)
+    monkeypatch.setattr(audiofone_module, "keypad", MagicMock(name="keypad"))
+    # dialplan is built in main(), so construct a fresh one (initial: onhook)
+    # per test. get_dialplan returns the model object the Machine is attached
+    # to (with the trigger and is_<state>() methods on it), not the Machine.
+    # It shares the module's tones mock, mirroring main(), because state
+    # on_enter callbacks (e.g. enter_busy) now play tones.
+    dialplan = context.get_dialplan(tones)
+    monkeypatch.setattr(audiofone_module, "dialplan", dialplan)
     monkeypatch.setattr(audiofone_module, "dialed_number", "")
     monkeypatch.setattr(audiofone_module, "busy_timer", None)
     monkeypatch.setattr(audiofone_module, "ring_timer", None)
-    monkeypatch.setattr(audiofone_module, "tones", MagicMock(name="tones"))
-    monkeypatch.setattr(audiofone_module, "keypad", MagicMock(name="keypad"))
     monkeypatch.setattr(audiofone_module.threading, "Timer", FakeTimer)
 
 
@@ -130,29 +135,23 @@ def test_have_number_returns_not_prefix(monkeypatch):
     assert audiofone_module.have_number("5551") is NumberValidity.NOT_PREFIX
 
 
-# go_busy / go_fast_busy
+# dialtone_timeout -> busy
 
-def test_go_busy_sets_state_and_plays_busy_tone():
+def test_dialtone_timeout_goes_busy_and_plays_busy_tone():
+    # Going busy is now the 'dialtone_timeout' transition into the 'busy'
+    # state; its enter_busy on_enter callback silences and plays the busy tone.
     audiofone_module.dialplan.to_dialtone()
-    audiofone_module.go_busy()
+    audiofone_module.dialplan.dialtone_timeout()
     assert audiofone_module.dialplan.state == "busy"
     audiofone_module.tones.off.assert_called_once()
     audiofone_module.tones.busy.assert_called_once()
 
 
-def test_go_fast_busy_sets_state_and_plays_tone():
-    audiofone_module.dialplan.to_dialtone()
-    audiofone_module.go_fast_busy()
-    assert audiofone_module.dialplan.state == "busy"
-    audiofone_module.tones.off.assert_called_once()
-    audiofone_module.tones.busy.assert_called_once()
-
-
-def test_go_busy_from_digits_goes_busy():
-    # Invalid input during digit collection triggers go_busy from 'digits';
-    # dialtone_timeout is defined from 'digits' too, so we reach 'busy'.
+def test_dialtone_timeout_from_digits_goes_busy():
+    # dialtone_timeout is defined from 'digits' too, so invalid input during
+    # digit collection also reaches 'busy' and plays the busy tone.
     audiofone_module.dialplan.to_digits()
-    audiofone_module.go_busy()
+    audiofone_module.dialplan.dialtone_timeout()
     assert audiofone_module.dialplan.state == "busy"
     audiofone_module.tones.busy.assert_called_once()
 
@@ -254,6 +253,7 @@ def test_on_keydown_plays_off_and_key_in_busy_state():
     # Once off hook, on_keydown always silences and plays the key tone,
     # regardless of which off-hook state we're in.
     audiofone_module.dialplan.to_busy()
+    audiofone_module.tones.reset_mock()  # discard enter_busy's tone calls
     audiofone_module.on_keydown("5")
     audiofone_module.tones.off.assert_called_once()
     audiofone_module.tones.key.assert_called_once_with("5")
