@@ -13,8 +13,9 @@ states = [
 transitions = [
     { 'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
     { 'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
-    { 'trigger': 'dialtone_timeout', 'source': 'dialtone', 'dest': 'busy' },
-    { 'trigger': 'dialtone_timeout', 'source': 'digits', 'dest': 'busy' },
+    { 'trigger': 'dialtone_timeout',
+      'source': ['dialtone', 'digits'],
+      'dest': 'busy' },
     { 'trigger': 'key_down',
       'source': ['dialtone', 'digits'],
       'dest': 'digits' },
