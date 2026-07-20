@@ -63,7 +63,7 @@ def go_busy():
 
 def go_fast_busy():
     """ Set dialplan state and play tones. """
-    # XXX same as busy
+    # XXX This is the same as busy.
     global dialplan
     log("go_busy BUSY_WAIT")
     dialplan.dialtone_timeout()
@@ -149,7 +149,7 @@ def start_number_event(soundfile):
     log("Ring for %d seconds" % (ring_time))
     tones.ring()
     cancel_timers()
-    # XXX hookstate = Hookstate.RINGING
+    dialplan.complete_key()
     ring_timer = threading.Timer(
         ring_time, lambda: play_audio_after_ring(soundfile))
     ring_timer.start()
@@ -160,7 +160,7 @@ def play_audio_after_ring(soundfile):
     log("DEBUG: play() %s" %(soundfile))
     tones.off()
     tones.play_audio(soundfile)
-    # XXX hookstate = Hookstate.PLAYING_AUDIO
+    dialplan.done_ringing()
     ring_timer = None
 
 def soundfile_number(filename):
@@ -222,7 +222,7 @@ def main():
         log(">> Key released => %s" %(k))
 
         if dialplan.is_onhook():
-            tones.keys_off()    # Transition should have handled this.
+            tones.keys_off()
             continue            # Ignore keys when onhook.
 
         tones.off()             # This is a key release, stop playing tones.

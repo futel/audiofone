@@ -5,7 +5,6 @@ states = [
     'dialtone',
     'busy',
     'digits',
-    'dialing',
     'ringing',
     'audio']
 
@@ -15,8 +14,9 @@ transitions = [
     { 'trigger': 'dialtone_timeout', 'source': 'dialtone', 'dest': 'busy' },
     { 'trigger': 'key', 'source': 'dialtone', 'dest': 'digits' },
     { 'trigger': 'key', 'source': 'digits', 'dest': 'digits' },
-    # XXX complete number, invalid number, invalid prefix keeps us in digits
-    #{ 'trigger': 'xxx', 'source': 'ringing', 'dest': 'audio' },
+    { 'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
+    { 'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
+    { 'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
 ]
 
 dialplan = Machine(

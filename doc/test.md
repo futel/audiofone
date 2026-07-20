@@ -8,13 +8,12 @@ See "Set up local testing environment" in install.md.
 
 ```
 source venv/bin/activate
-pytest test/
 ```
 
 # Test on pi
 
 ## Manual tests
-
+b
 On boot, supervisord will launch the main audiofone.py app and
 puredata.
 
@@ -28,7 +27,7 @@ puredata.
 * hang up, dial an invalid number, verify that you hear a fast busy after the first invalid keypress
 * run alsamixer and verify that your preferred volume persists across reboots
 
-## Monitoring
+# Monitoring
 
 ## logs
 
