@@ -16,8 +16,6 @@ import time
 import threading
 import random
 
-dialplan = context.dialplan
-
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
 BUSY_TIMEOUT = 15.0 # seconds
@@ -25,6 +23,7 @@ audio_directory = "/mnt/futel"
 
 # globals for the ongoing interaction
 dialed_number = ''
+dialplan = None
 busy_timer = None
 ring_timer = None
 tones = None
@@ -46,22 +45,7 @@ def play_busy():
         return
     log("Too long off hook...")
     busy_timer = None
-    go_busy()
-
-def go_busy():
-    """ Set dialplan state and play tones. """
-    global dialplan
     dialplan.dialtone_timeout()
-    tones.off()
-    tones.busy()
-
-def go_fast_busy():
-    """ Set dialplan state and play tones. """
-    # XXX This is the same as busy.
-    global dialplan
-    dialplan.dialtone_timeout()
-    tones.off()
-    tones.busy()
 
 def start_busy_timer():
     global busy_timer
@@ -192,6 +176,7 @@ def main():
 
     tones = Tones()
     tones.off()
+    dialplan = context.get_dialplan(tones)
 
     # Hookswitch monitor. This will call the callbacks without blocking.
     hookswitch = Hookswitch(on_hook_up = on_handset_pickup,
@@ -221,9 +206,10 @@ def main():
         dialed_number = dialed_number + k
         soundfile = have_number(dialed_number)
         if soundfile is NumberValidity.INVALID_KEY:
-            go_busy()
+            dialplan.dialtone_timeout()
         elif soundfile is NumberValidity.NOT_PREFIX:
-            go_fast_busy()
+            # XXX This should be a fast busy instead of slow busy.
+            dialplan.dialtone_timeout()
         elif soundfile is NumberValidity.POSSIBLE_PREFIX:
             log("possible soundfile %s" % dialed_number)
         else:
