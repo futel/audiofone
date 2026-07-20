@@ -17,11 +17,6 @@ import threading
 import random
 
 dialplan = context.dialplan
-# The control flow drives triggers defensively (e.g. a key release or a busy
-# timer can fire in a state the transition isn't defined from), so treat
-# invalid triggers as no-ops instead of raising MachineError.
-# XXX It would be better to add these transitions to the dialplan.
-dialplan.ignore_invalid_triggers = True
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
@@ -56,7 +51,6 @@ def play_busy():
 def go_busy():
     """ Set dialplan state and play tones. """
     global dialplan
-    log("go_busy BUSY_WAIT")
     dialplan.dialtone_timeout()
     tones.off()
     tones.busy()
@@ -65,7 +59,6 @@ def go_fast_busy():
     """ Set dialplan state and play tones. """
     # XXX This is the same as busy.
     global dialplan
-    log("go_busy BUSY_WAIT")
     dialplan.dialtone_timeout()
     tones.off()
     tones.busy()
@@ -108,7 +101,6 @@ def on_handset_pickup():
     """Callback for when the hookswitch is raised."""
     global dialplan
     global dialed_number
-    log("on_handset_pickup")
     dialplan.hook_up()
     dialed_number = ''
     tones.dialtone()
@@ -120,7 +112,6 @@ def on_hangup():
     Set dialplan state, cancel all tones and timers.
     """
     global dialplan
-    log("on_hangup")
     dialplan.hook_down()
     tones.off()
     keypad.cancel()
