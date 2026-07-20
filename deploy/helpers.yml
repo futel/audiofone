@@ -11,31 +11,37 @@
     dest: /opt/futel/src/
     owner: pi
     group: pi
-- name: copy hookswitch
+- name: copy source
+  copy:
+    src: src/opt/futel/src/context.py
+    dest: /opt/futel/src/context.py
+    owner: pi
+    group: pi
+- name: copy source
   copy:
     src: src/opt/futel/src/hookswitch.py
     dest: /opt/futel/src/hookswitch.py
     owner: pi
     group: pi
-- name: copy log
+- name: copy source
   copy:
     src: src/opt/futel/src/log.py
     dest: /opt/futel/src/log.py
     owner: pi
     group: pi
-- name: copy tones
+- name: copy source
   copy:
     src: src/opt/futel/src/tones.py
     dest: /opt/futel/src/tones.py
     owner: pi
     group: pi
-- name: copy keypad script
+- name: copy source
   copy:
     src: src/opt/futel/src/keypad.py
     dest: /opt/futel/src/keypad.py
     owner: pi
     group: pi
-- name: copy audiofone script
+- name: copy audiofone script source
   copy:
     src: src/opt/futel/src/audiofone.py
     dest: /opt/futel/src/audiofone.py
