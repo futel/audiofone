@@ -1,6 +1,5 @@
 import time
 from gpiozero import Button, OutputDevice
-from log import log
 
 # row scan, column detects
 # Pins are BCM GPIO numbers.
@@ -66,7 +65,6 @@ class Keypad:
 
                         while(self._cols[col].is_pressed):
                             if(self._cancelled): return ''
-                            # log("DEBUG still down %s" % (key_name))
                             time.sleep(0.025)
                         return key_name
                 self._rows[row].on()
@@ -78,6 +76,7 @@ class Keypad:
 
 if __name__ == "__main__":
     # test method
+    from log import log
     def on_keydown(key_name):
         log("down %s" % (key_name))
     k = Keypad(on_keydown)
