@@ -1,0 +1,7 @@
+---
+- name: copy audio assets
+  copy:
+    src: src/opt/futel/src/audio
+    dest: /opt/futel/src/
+    owner: pi
+    group: pi
