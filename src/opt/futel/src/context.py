@@ -1,7 +1,6 @@
-import sys
 from transitions import Machine, State
 
-import log
+from log import log
 
 states = [
     State(name='onhook'),
@@ -9,15 +8,19 @@ states = [
     State(name='busy', on_enter=['enter_busy']),
     State(name='digits'),
     State(name='ringing'),
-    State(name='audio')]
+    State(name='audio', on_enter=['enter_audio'])]
 
 transitions = [
     { 'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
     { 'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
     { 'trigger': 'dialtone_timeout', 'source': 'dialtone', 'dest': 'busy' },
     { 'trigger': 'dialtone_timeout', 'source': 'digits', 'dest': 'busy' },
-    { 'trigger': 'key', 'source': 'dialtone', 'dest': 'digits' },
-    { 'trigger': 'key', 'source': 'digits', 'dest': 'digits' },
+    { 'trigger': 'key_down',
+      'source': ['dialtone', 'digits'],
+      'dest': 'digits' },
+    { 'trigger': 'key_up',
+      'source': ['dialtone', 'digits'],
+      'dest': 'digits' },
     { 'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
     { 'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
     { 'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
@@ -30,12 +33,21 @@ class Dialplan(object):
         self.tones = tones
 
     def log_state(self, event):
-        print(event)
-        sys.stdout.flush()
+        log("%s %s %s" % (event.state, event.event, event.args))
 
     def enter_busy(self, event):
         self.tones.off()
         self.tones.busy()
+
+    def enter_audio(self, event):
+        soundfile = event.kwargs.get('soundfile')
+        self.tones.off()
+        log("DEBUG: play() %s" %(soundfile))
+        self.tones.play_audio(soundfile)
+
+    # def enter_digits(self, event):
+    #     # This is a key release, stop playing tones
+    #     self.tones.off()
 
 
 def get_dialplan(tones):

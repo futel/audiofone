@@ -132,10 +132,7 @@ def start_number_event(soundfile):
 def play_audio_after_ring(soundfile):
     global dialplan
     global ring_timer
-    log("DEBUG: play() %s" %(soundfile))
-    tones.off()
-    tones.play_audio(soundfile)
-    dialplan.done_ringing()
+    dialplan.done_ringing(soundfile=soundfile)
     ring_timer = None
 
 def soundfile_number(filename):
@@ -194,7 +191,7 @@ def main():
         if(k == ''):
             log("key read cancelled")
             continue
-        dialplan.key()
+        dialplan.key_up()
         log(">> Key released => %s" %(k))
 
         if dialplan.is_onhook():

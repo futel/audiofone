@@ -333,5 +333,5 @@ def test_dialplan_ignores_invalid_key_trigger():
     # A key release can arrive while the machine is in 'busy'; the 'key'
     # transition isn't defined there and must be ignored, not raise.
     audiofone_module.dialplan.to_busy()
-    audiofone_module.dialplan.key()
+    audiofone_module.dialplan.key_up()
     assert audiofone_module.dialplan.state == "busy"
