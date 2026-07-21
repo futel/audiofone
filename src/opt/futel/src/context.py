@@ -5,10 +5,10 @@ from log import log
 states = [
     State(name='onhook'),
     State(name='dialtone'),
-    State(name='busy', on_enter=['enter_busy']),
+    State(name='busy'),
     State(name='digits'),
     State(name='ringing'),
-    State(name='audio', on_enter=['enter_audio'])]
+    State(name='audio')]
 
 transitions = [
     { 'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
@@ -31,23 +31,24 @@ transitions = [
 
 class Dialplan(object):
     """Object to run state machine actions."""
+
     def __init__(self, tones):
         self.tones = tones
 
     def log_state(self, event):
         log("before state %s %s %s" % (event.state, event.event, event.args))
 
-    def enter_busy(self, event):
+    def on_enter_busy(self, event):
         self.tones.off()
         self.tones.busy()
 
-    def enter_audio(self, event):
+    def on_enter_audio(self, event):
         soundfile = event.kwargs.get('soundfile')
         self.tones.off()
         log("DEBUG: play() %s" %(soundfile))
         self.tones.play_audio(soundfile)
 
-    # def enter_digits(self, event):
+    # def on_enter_digits(self, event):
     #     # This is a key release, stop playing tones
     #     self.tones.off()
 
