@@ -87,7 +87,6 @@ def on_handset_pickup():
     global dialed_number
     dialplan.hook_up()
     dialed_number = ''
-    tones.dialtone()
     start_busy_timer()
 
 def on_hangup():
@@ -97,7 +96,6 @@ def on_hangup():
     """
     global dialplan
     dialplan.hook_down()
-    tones.off()
     keypad.cancel()
     cancel_timers()
 

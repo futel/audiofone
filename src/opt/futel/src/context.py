@@ -38,6 +38,12 @@ class Dialplan(object):
     def log_state(self, event):
         log("before state %s %s %s" % (event.state, event.event, event.args))
 
+    def on_enter_onhook(self, event):
+        self.tones.off()
+
+    def on_enter_dialtone(self, event):
+        self.tones.dialtone()
+
     def on_enter_busy(self, event):
         self.tones.off()
         self.tones.busy()
