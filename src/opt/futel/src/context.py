@@ -22,6 +22,7 @@ transitions = [
     { 'trigger': 'key_up',
       'source': ['dialtone', 'digits'],
       'dest': 'digits' },
+    # add nop key_down key_up from other states
     { 'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
     { 'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
     { 'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
@@ -34,7 +35,7 @@ class Dialplan(object):
         self.tones = tones
 
     def log_state(self, event):
-        log("%s %s %s" % (event.state, event.event, event.args))
+        log("before state %s %s %s" % (event.state, event.event, event.args))
 
     def enter_busy(self, event):
         self.tones.off()
