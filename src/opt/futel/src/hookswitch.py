@@ -22,6 +22,7 @@ class Hookswitch:
         """
         # pull_up: the pin idles high and is pulled low when the switch closes,
         # so a press (pin low) is hook up and a release (pin high) is hook down.
-        self._button = Button(self._pin, pull_up=True)
+        # Hookswitch needs bounce_time for debouncing.
+        self._button = Button(self._pin, pull_up=True, bounce_time=0.1)
         self._button.when_pressed = self._on_hook_up
         self._button.when_released = self._on_hook_down
