@@ -195,6 +195,11 @@ def main():
         log(">> Key released => %s" %(k))
 
         if dialplan.is_onhook():
+            # XXX We should instead handle a key_up from onhook correctly as
+            #     a nop. Put more in the state machine and have the correct
+            #     lack of action from onhook source, probably.
+            # XXX Also need to handle keydown, keyup as a noop from busy,
+            #     ringing, audio.
             tones.keys_off()
             continue            # Ignore keys when onhook.
 
