@@ -39,10 +39,6 @@ class NumberValidity(Enum):
 def play_busy():
     global dialplan
     global busy_timer
-    # Check for a hookswitch state which should prevent audio, although we
-    # shouldn't be active anyway, we don't consistently check this, etc.
-    if(dialplan.is_onhook()):
-        return
     log("Too long off hook...")
     busy_timer = None
     dialplan.dialtone_timeout()
@@ -73,6 +69,11 @@ def cancel_ring_timer():
 def on_keydown(key):
     """Callback for when a key is pressed."""
     global dialplan
+    # XXX We should instead handle a key_down from onhook correctly as
+    #     a nop. Put more in the state machine and have the correct
+    #     lack of action from onhook source, probably.
+    # XXX Also need to handle keydown, keyup as a noop from busy,
+    #     ringing, audio.
     if(dialplan.is_onhook()):
         return                  # Ignore keypresses when onhook.
     log("on_keydown %s" % key)
