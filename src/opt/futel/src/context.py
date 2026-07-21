@@ -69,6 +69,6 @@ def get_dialplan(tones):
 
     # Treat invalid triggers as no-ops instead of raising MachineError.
     # XXX It would be better to check and remove these bugs instead.
-    machine.ignore_invalid_triggers = True
+    # machine.ignore_invalid_triggers = True
 
     return dialplan
