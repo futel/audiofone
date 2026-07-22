@@ -2,6 +2,7 @@ import random
 import threading
 from transitions import Machine, State
 
+import dialnumbers
 from log import log
 
 BUSY_TIMEOUT = 15.0 # seconds
@@ -20,12 +21,16 @@ transitions = [
     { 'trigger': 'dialtone_timeout',
       'source': ['dialtone', 'digits'],
       'dest': 'busy' },
+    # Internal nop transitions from onhook.
+    { 'trigger': 'onhook_key_down', 'source': 'onhook', 'dest': None },
+    { 'trigger': 'onhook_key_up', 'source': 'onhook', 'dest': None },
     { 'trigger': 'key_down',
       'source': ['dialtone', 'digits'],
       'dest': 'digits' },
     { 'trigger': 'key_up',
       'source': ['dialtone', 'digits'],
-      'dest': 'digits' },
+      'dest': 'digits',
+      'after': 'after_key_up'},
     # add nop key_down key_up from other states
     { 'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
     { 'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
@@ -105,9 +110,30 @@ class Dialplan(object):
         log("DEBUG: play() %s" %(soundfile))
         self.tones.play_audio(soundfile)
 
-    # def on_enter_digits(self, event):
-    #     # This is a key release, stop playing tones
-    #     self.tones.off()
+    def after_key_up(self, event):
+        key = event.kwargs.get('key')
+        log(">> Key released => %s" %(key))
+        self.tones.off()  # This is a key release, stop playing tones.
+        # Collect the number and add it to dialed_number.
+        self.dialed_number = self.dialed_number + key
+        soundfile = dialnumbers.have_number(self.dialed_number)
+        if soundfile is dialnumbers.NumberValidity.INVALID_KEY:
+            self.dialtone_timeout()
+        elif soundfile is dialnumbers.NumberValidity.NOT_PREFIX:
+            # XXX This should be a fast busy instead of slow busy.
+            self.dialtone_timeout()
+        elif soundfile is dialnumbers.NumberValidity.POSSIBLE_PREFIX:
+            log("possible soundfile %s" % self.dialed_number)
+        else:
+            self.start_number_event(soundfile)
+
+    def start_number_event(self, soundfile):
+        """
+        Enter ringing state, start thread to play soundfile after timer.
+        """
+        self.tones.ring()
+        self.cancel_timers()
+        self.complete_key(soundfile=soundfile)
 
 
 def get_dialplan(tones):

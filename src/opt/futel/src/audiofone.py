@@ -7,7 +7,6 @@ To be run continuously on the pi.
 import context
 from hookswitch import Hookswitch
 from keypad import Keypad
-import dialnumbers
 from tones import Tones
 from log import log
 
@@ -47,15 +46,6 @@ def on_hangup():
     dialplan.hook_down()
     keypad.cancel()             # XXX
 
-def start_number_event(soundfile):
-    """
-    Enter ringing state, start thread to play soundfile after timer.
-    """
-    global dialplan
-    tones.ring()
-    dialplan.cancel_timers()    # XXX
-    dialplan.complete_key(soundfile=soundfile)
-
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
     global dialplan
@@ -79,35 +69,11 @@ def main():
     while(True):
         # Busy wait until the keypad returns with key up result. Key down
         # results are handled with a callback, we busy wait for key up.
-        k = keypad.read_key(on_keydown)
-        if(k == ''):
+        key = keypad.read_key(on_keydown)
+        if(key == ''):
             log("key read cancelled")
             continue
-        dialplan.key_up()
-        log(">> Key released => %s" %(k))
-
-        if dialplan.is_onhook():
-            # XXX We should instead handle a key_up from onhook correctly as
-            #     a nop. Put more in the state machine and have the correct
-            #     lack of action from onhook source, probably.
-            # XXX Also need to handle keydown, keyup as a noop from busy,
-            #     ringing, audio.
-            tones.keys_off()
-            continue            # Ignore keys when onhook.
-
-        tones.off()             # This is a key release, stop playing tones.
-        # Collect the number and add it to dialed_number.
-        dialplan.dialed_number = dialplan.dialed_number + k # XXX
-        soundfile = dialnumbers.have_number(dialplan.dialed_number)
-        if soundfile is dialnumbers.NumberValidity.INVALID_KEY:
-            dialplan.dialtone_timeout()
-        elif soundfile is dialnumbers.NumberValidity.NOT_PREFIX:
-            # XXX This should be a fast busy instead of slow busy.
-            dialplan.dialtone_timeout()
-        elif soundfile is dialnumbers.NumberValidity.POSSIBLE_PREFIX:
-            log("possible soundfile %s" % dialplan.dialed_number)
-        else:
-            start_number_event(soundfile)
+        dialplan.key_up(key=key)
 
 
 if __name__ == "__main__":
