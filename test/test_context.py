@@ -74,7 +74,7 @@ def test_get_dialplan_starts_with_empty_number_and_no_timers(dialplan):
 
 
 def test_get_dialplan_attaches_trigger_methods(dialplan):
-    for trigger in ("hook_up", "hook_down", "key_up", "key_down"):
+    for trigger in ("hook_up", "hook_down", "key_release"):
         assert callable(getattr(dialplan, trigger))
 
 
@@ -140,83 +140,78 @@ def test_busy_timer_firing_moves_to_busy(dialplan):
     assert dialplan.is_busy() is True
 
 
-# onhook key events are no-ops.
+# key_release is a no-op outside dialtone/digits.
 
 
-def test_onhook_key_down_is_nop(dialplan):
-    dialplan.onhook_key_down()
+def test_key_release_from_onhook_is_nop(dialplan):
+    dialplan.key_release(key="5")
     assert dialplan.is_onhook() is True
 
 
-def test_onhook_key_up_is_nop(dialplan):
-    dialplan.onhook_key_up()
-    assert dialplan.is_onhook() is True
-
-
-# key_down: dialtone/digits -> digits.
-
-
-def test_key_down_from_dialtone_enters_digits(dialplan):
+def test_key_release_from_busy_is_nop(dialplan):
     dialplan.hook_up()
-    dialplan.key_down()
-    assert dialplan.is_digits() is True
+    dialplan.dialtone_timeout()
+    assert dialplan.is_busy() is True
+    dialplan.key_release(key="5")
+    assert dialplan.is_busy() is True
 
 
-def test_key_down_from_digits_stays_in_digits(dialplan):
-    dialplan.hook_up()
-    dialplan.key_down()
-    dialplan.key_down()
-    assert dialplan.is_digits() is True
+# key_release / after_key_release: dialtone/digits -> digits, digit collection
+# and dialplan branching.
 
 
-# key_up / after_key_up: digit collection and dialplan branching.
-
-
-def test_key_up_accumulates_possible_prefix(dialplan, tones, monkeypatch):
+def test_key_release_from_dialtone_enters_digits(dialplan, monkeypatch):
     stub_have_number(monkeypatch, NumberValidity.POSSIBLE_PREFIX)
     dialplan.hook_up()
-    dialplan.key_up(key="5")
+    dialplan.key_release(key="5")
+    assert dialplan.is_digits() is True
+
+
+def test_key_release_accumulates_possible_prefix(dialplan, tones, monkeypatch):
+    stub_have_number(monkeypatch, NumberValidity.POSSIBLE_PREFIX)
+    dialplan.hook_up()
+    dialplan.key_release(key="5")
     assert dialplan.dialed_number == "5"
     assert dialplan.is_digits() is True
     tones.off.assert_called()
 
 
-def test_key_up_accumulates_across_multiple_keys(dialplan, monkeypatch):
+def test_key_release_accumulates_across_multiple_keys(dialplan, monkeypatch):
     stub_have_number(monkeypatch, NumberValidity.POSSIBLE_PREFIX)
     dialplan.hook_up()
-    dialplan.key_up(key="5")
-    dialplan.key_up(key="0")
-    dialplan.key_up(key="3")
+    dialplan.key_release(key="5")
+    dialplan.key_release(key="0")
+    dialplan.key_release(key="3")
     assert dialplan.dialed_number == "503"
 
 
-def test_key_up_invalid_key_goes_to_busy(dialplan, monkeypatch):
+def test_key_release_invalid_key_goes_to_busy(dialplan, monkeypatch):
     stub_have_number(monkeypatch, NumberValidity.INVALID_KEY)
     dialplan.hook_up()
-    dialplan.key_up(key="0")
+    dialplan.key_release(key="0")
     assert dialplan.is_busy() is True
 
 
-def test_key_up_not_prefix_goes_to_busy(dialplan, monkeypatch):
+def test_key_release_not_prefix_goes_to_busy(dialplan, monkeypatch):
     stub_have_number(monkeypatch, NumberValidity.NOT_PREFIX)
     dialplan.hook_up()
-    dialplan.key_up(key="9")
+    dialplan.key_release(key="9")
     assert dialplan.is_busy() is True
 
 
-def test_key_up_match_enters_ringing(dialplan, tones, monkeypatch):
+def test_key_release_match_enters_ringing(dialplan, tones, monkeypatch):
     stub_have_number(monkeypatch, "911_emergency")
     dialplan.hook_up()
-    dialplan.key_up(key="9")
+    dialplan.key_release(key="9")
     assert dialplan.is_ringing() is True
     tones.ring.assert_called_once_with()
 
 
-def test_key_up_match_cancels_busy_timer(dialplan, monkeypatch):
+def test_key_release_match_cancels_busy_timer(dialplan, monkeypatch):
     stub_have_number(monkeypatch, "911_emergency")
     dialplan.hook_up()
     busy_timer = dialplan.busy_timer
-    dialplan.key_up(key="9")
+    dialplan.key_release(key="9")
     assert busy_timer.cancelled is True
     assert dialplan.busy_timer is None
 
@@ -227,7 +222,7 @@ def test_key_up_match_cancels_busy_timer(dialplan, monkeypatch):
 def test_on_enter_ringing_starts_ring_timer(dialplan, monkeypatch):
     stub_have_number(monkeypatch, "911_emergency")
     dialplan.hook_up()
-    dialplan.key_up(key="9")
+    dialplan.key_release(key="9")
     assert dialplan.ring_timer is not None
     assert dialplan.ring_timer.interval == 7
     assert dialplan.ring_timer.started is True
@@ -236,7 +231,7 @@ def test_on_enter_ringing_starts_ring_timer(dialplan, monkeypatch):
 def test_ring_timer_firing_plays_audio(dialplan, tones, monkeypatch):
     stub_have_number(monkeypatch, "911_emergency")
     dialplan.hook_up()
-    dialplan.key_up(key="9")
+    dialplan.key_release(key="9")
     tones.reset_mock()
     dialplan.ring_timer.function()  # simulate the ring timer expiring
     assert dialplan.is_audio() is True
@@ -301,8 +296,7 @@ def test_full_dial_flow_reaches_audio(dialplan, tones, monkeypatch):
 
     dialplan.hook_up()
     for digit in "911":
-        dialplan.key_down()
-        dialplan.key_up(key=digit)
+        dialplan.key_release(key=digit)
 
     assert dialplan.is_ringing() is True
     assert dialplan.dialed_number == "911"
