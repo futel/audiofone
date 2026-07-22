@@ -24,11 +24,6 @@ keypad = None
 def on_keydown(key):
     """Callback for when a key is pressed."""
     global dialplan
-    # XXX We should instead handle a key_down from onhook correctly as
-    #     a nop. Put more in the state machine and have the correct
-    #     lack of action from onhook source, probably.
-    # XXX Also need to handle keydown, keyup as a noop from busy,
-    #     ringing, audio.
     if(dialplan.is_onhook()):
         return                  # Ignore keypresses when onhook.
     log("on_keydown %s" % key)
@@ -70,10 +65,11 @@ def main():
         # Busy wait until the keypad returns with key up result. Key down
         # results are handled with a callback, we busy wait for key up.
         key = keypad.read_key(on_keydown)
+        # The key has been lifted or cancelled.
         if(key == ''):
             log("key read cancelled")
             continue
-        dialplan.key_up(key=key)
+        dialplan.key_release(key=key)
 
 
 if __name__ == "__main__":

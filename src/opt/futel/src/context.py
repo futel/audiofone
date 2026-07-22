@@ -11,30 +11,33 @@ states = [
     State(name='onhook'),
     State(name='dialtone'),
     State(name='busy'),
+    #State(name='key_down'),
     State(name='digits'),
     State(name='ringing'),
     State(name='audio')]
 
 transitions = [
-    { 'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
-    { 'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
-    { 'trigger': 'dialtone_timeout',
+    {'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
+    {'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
+    {'trigger': 'dialtone_timeout',
       'source': ['dialtone', 'digits'],
       'dest': 'busy' },
-    # Internal nop transitions from onhook.
-    { 'trigger': 'onhook_key_down', 'source': 'onhook', 'dest': None },
-    { 'trigger': 'onhook_key_up', 'source': 'onhook', 'dest': None },
-    { 'trigger': 'key_down',
-      'source': ['dialtone', 'digits'],
-      'dest': 'digits' },
-    { 'trigger': 'key_up',
+    # {'trigger': 'key_press',
+    #   'source': ['onhook', 'busy', 'ringing', 'audio'],
+    #   'dest': None},
+    {'trigger': 'key_release',
+      'source': ['onhook', 'busy', 'ringing', 'audio'],
+      'dest': None},
+    # {'trigger': 'key_press',
+    #   'source': ['dialtone', 'digits'],
+    #   'dest': 'digits' },
+    {'trigger': 'key_release',
       'source': ['dialtone', 'digits'],
       'dest': 'digits',
-      'after': 'after_key_up'},
-    # add nop key_down key_up from other states
-    { 'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
-    { 'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
-    { 'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
+      'after': 'after_key_release'},
+    {'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
+    {'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
+    {'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
 ]
 
 
@@ -110,10 +113,10 @@ class Dialplan(object):
         log("DEBUG: play() %s" %(soundfile))
         self.tones.play_audio(soundfile)
 
-    def after_key_up(self, event):
+    def after_key_release(self, event):
         key = event.kwargs.get('key')
-        log(">> Key released => %s" %(key))
-        self.tones.off()  # This is a key release, stop playing tones.
+        log(">> Key release => %s" %(key))
+        self.tones.off()
         # Collect the number and add it to dialed_number.
         self.dialed_number = self.dialed_number + key
         soundfile = dialnumbers.have_number(self.dialed_number)
