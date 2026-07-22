@@ -25,6 +25,12 @@
     group: pi
 - name: copy source
   copy:
+    src: src/opt/futel/src/dialnumbers.py
+    dest: /opt/futel/src/dialnumbers.py
+    owner: pi
+    group: pi
+- name: copy source
+  copy:
     src: src/opt/futel/src/tones.py
     dest: /opt/futel/src/tones.py
     owner: pi

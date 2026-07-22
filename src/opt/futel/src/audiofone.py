@@ -7,27 +7,20 @@ To be run continuously on the pi.
 import context
 from hookswitch import Hookswitch
 from keypad import Keypad
+import dialnumbers
 from tones import Tones
 from log import log
 
-from enum import Enum, auto
-import os
 import time
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
-audio_directory = "/mnt/futel"
 
 # globals for the ongoing interaction
 dialplan = None
 tones = None
 keypad = None
 
-
-class NumberValidity(Enum):
-    INVALID_KEY = auto()
-    NOT_PREFIX = auto()
-    POSSIBLE_PREFIX = auto()
 
 def on_keydown(key):
     """Callback for when a key is pressed."""
@@ -54,19 +47,6 @@ def on_hangup():
     dialplan.hook_down()
     keypad.cancel()             # XXX
 
-def have_number(number):
-    """
-    Return soundfile or enum for number.
-    """
-    if(invalid_dialplan(number)):
-        return NumberValidity.INVALID_KEY
-    soundfile = get_soundfile(number)
-    if soundfile is not None:
-        return soundfile
-    if not possible_number(number):
-        return NumberValidity.NOT_PREFIX
-    return NumberValidity.POSSIBLE_PREFIX
-
 def start_number_event(soundfile):
     """
     Enter ringing state, start thread to play soundfile after timer.
@@ -75,35 +55,6 @@ def start_number_event(soundfile):
     tones.ring()
     dialplan.cancel_timers()    # XXX
     dialplan.complete_key(soundfile=soundfile)
-
-def soundfile_number(filename):
-    """ Return number corresponding to soundfile. """
-    filename = filename.split('.').pop(0)
-    return filename.split('_').pop(0)
-
-def get_soundfile(number):
-    """ Return normalized soundfile name corresponding to number. """
-    for filename in os.listdir(audio_directory):
-        if soundfile_number(filename) == number:
-            # Remove suffix, if there, player doesn't want it.
-            # Assume only one . in filename.
-            return filename.split('.').pop(0)
-    return None
-
-def possible_number(number):
-    """ Return True if number should not receive an invalid notification. """
-    possible_numbers = [
-        soundfile_number(filename) for filename in os.listdir(audio_directory)]
-    if len(number) < max(len(number) for number in possible_numbers):
-        return True
-    return False
-
-def invalid_dialplan(number):
-    """Return True if number matches a forbidden sequence."""
-    if number.startswith("0"): return True
-    if "#" in number: return True
-    if "*" in number: return True
-    return False
 
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
@@ -146,13 +97,13 @@ def main():
         tones.off()             # This is a key release, stop playing tones.
         # Collect the number and add it to dialed_number.
         dialplan.dialed_number = dialplan.dialed_number + k # XXX
-        soundfile = have_number(dialplan.dialed_number)
-        if soundfile is NumberValidity.INVALID_KEY:
+        soundfile = dialnumbers.have_number(dialplan.dialed_number)
+        if soundfile is dialnumbers.NumberValidity.INVALID_KEY:
             dialplan.dialtone_timeout()
-        elif soundfile is NumberValidity.NOT_PREFIX:
+        elif soundfile is dialnumbers.NumberValidity.NOT_PREFIX:
             # XXX This should be a fast busy instead of slow busy.
             dialplan.dialtone_timeout()
-        elif soundfile is NumberValidity.POSSIBLE_PREFIX:
+        elif soundfile is dialnumbers.NumberValidity.POSSIBLE_PREFIX:
             log("possible soundfile %s" % dialplan.dialed_number)
         else:
             start_number_event(soundfile)
