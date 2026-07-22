@@ -109,7 +109,7 @@ def test_read_key_detects_keypress_at_each_position(
     result = kp.read_key(on_keydown)
 
     assert result == expected_key
-    on_keydown.assert_called_once_with(expected_key)
+    on_keydown.assert_called_once_with(key=expected_key)
 
 
 def test_read_key_polls_until_key_is_released(monkeypatch):
@@ -123,7 +123,7 @@ def test_read_key_polls_until_key_is_released(monkeypatch):
     result = kp.read_key(on_keydown)
 
     assert result == "1"
-    on_keydown.assert_called_once_with("1")
+    on_keydown.assert_called_once_with(key="1")
 
 
 def test_read_key_returns_empty_string_if_cancelled_while_waiting_for_release(
