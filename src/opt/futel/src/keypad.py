@@ -61,7 +61,7 @@ class Keypad:
                         key_name = DIGITS[row][col]
 
                         # Invoke keydown callback and wait for it to return.
-                        on_keydown(key_name)
+                        on_keydown(key=key_name)
                         # Busy wait until the the key is released.
                         while(self._cols[col].is_pressed):
                             if(self._cancelled): return ''

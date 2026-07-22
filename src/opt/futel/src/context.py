@@ -22,15 +22,16 @@ transitions = [
     {'trigger': 'dialtone_timeout',
       'source': ['dialtone', 'digits'],
       'dest': 'busy' },
-    # {'trigger': 'key_press',
-    #   'source': ['onhook', 'busy', 'ringing', 'audio'],
-    #   'dest': None},
+    # Don't change state for keys from these states.
+    {'trigger': 'key_press',
+     'source': ['onhook', 'busy', 'ringing', 'audio'],
+     'dest': None},
     {'trigger': 'key_release',
       'source': ['onhook', 'busy', 'ringing', 'audio'],
       'dest': None},
-    # {'trigger': 'key_press',
-    #   'source': ['dialtone', 'digits'],
-    #   'dest': 'digits' },
+    {'trigger': 'key_press',
+     'source': ['dialtone', 'digits'],
+     'dest': 'digits' },
     {'trigger': 'key_release',
       'source': ['dialtone', 'digits'],
       'dest': 'digits',
@@ -112,6 +113,13 @@ class Dialplan(object):
         self.tones.off()
         log("DEBUG: play() %s" %(soundfile))
         self.tones.play_audio(soundfile)
+
+    def on_enter_digits(self, event):
+        key = event.kwargs.get('key')
+        self.tones.off()
+        self.tones.key(key)
+        self.cancel_timers()
+        self.start_busy_timer()
 
     def after_key_release(self, event):
         key = event.kwargs.get('key')

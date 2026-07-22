@@ -62,9 +62,10 @@ def main():
     hookswitch.run()
 
     while(True):
-        # Busy wait until the keypad returns with key up result. Key down
-        # results are handled with a callback, we busy wait for key up.
-        key = keypad.read_key(on_keydown)
+        # Tell the keypad to busy wait and call dialplan.key_press
+        # when a key press happens, with the key as an argument, then
+        # busy wait and return the key.
+        key = keypad.read_key(dialplan.key_press)
         # The key has been lifted or cancelled.
         if(key == ''):
             log("key read cancelled")
