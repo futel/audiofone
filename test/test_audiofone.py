@@ -29,16 +29,16 @@ def reset_state(monkeypatch):
     monkeypatch.setattr(audiofone_module, "tones", tones)
     monkeypatch.setattr(audiofone_module, "keypad", MagicMock(name="keypad"))
     # dialplan is built in main(), so construct a fresh one (initial: onhook)
-    # per test. get_dialplan returns the model object the Machine is attached
-    # to (with the trigger and is_<state>() methods on it), not the Machine.
-    # It shares the module's tones mock, mirroring main(), because state
-    # on_enter callbacks (e.g. enter_busy) now play tones.
+    # per test. get_dialplan returns the model the Machine is attached to (with
+    # the trigger and is_<state>() methods on it), not the Machine. It owns the
+    # timers and the tone-playing on_enter callbacks, and shares the module's
+    # tones mock, mirroring main().
     dialplan = context.get_dialplan(tones)
     monkeypatch.setattr(audiofone_module, "dialplan", dialplan)
     monkeypatch.setattr(audiofone_module, "dialed_number", "")
-    monkeypatch.setattr(audiofone_module, "busy_timer", None)
-    monkeypatch.setattr(audiofone_module, "ring_timer", None)
-    monkeypatch.setattr(audiofone_module.threading, "Timer", FakeTimer)
+    # Timers now live on the Dialplan (in the context module); swap the real
+    # threading.Timer there so tests never spawn a thread.
+    monkeypatch.setattr(context.threading, "Timer", FakeTimer)
 
 
 # soundfile_number
@@ -135,108 +135,18 @@ def test_have_number_returns_not_prefix(monkeypatch):
     assert audiofone_module.have_number("5551") is NumberValidity.NOT_PREFIX
 
 
-# dialtone_timeout -> busy
-
-def test_dialtone_timeout_goes_busy_and_plays_busy_tone():
-    # Going busy is now the 'dialtone_timeout' transition into the 'busy'
-    # state; its enter_busy on_enter callback silences and plays the busy tone.
-    audiofone_module.dialplan.to_dialtone()
-    audiofone_module.dialplan.dialtone_timeout()
-    assert audiofone_module.dialplan.state == "busy"
-    audiofone_module.tones.off.assert_called_once()
-    audiofone_module.tones.busy.assert_called_once()
-
-
-def test_dialtone_timeout_from_digits_goes_busy():
-    # dialtone_timeout is defined from 'digits' too, so invalid input during
-    # digit collection also reaches 'busy' and plays the busy tone.
-    audiofone_module.dialplan.to_digits()
-    audiofone_module.dialplan.dialtone_timeout()
-    assert audiofone_module.dialplan.state == "busy"
-    audiofone_module.tones.busy.assert_called_once()
-
-
-# play_busy
-
-def test_play_busy_does_nothing_when_on_hook():
-    audiofone_module.dialplan.to_onhook()
-    audiofone_module.play_busy()
-    assert audiofone_module.dialplan.state == "onhook"
-    audiofone_module.tones.busy.assert_not_called()
-
-
-def test_play_busy_goes_busy_when_off_hook():
-    audiofone_module.dialplan.to_dialtone()
-    audiofone_module.busy_timer = FakeTimer(1, lambda: None)
-    audiofone_module.play_busy()
-    assert audiofone_module.dialplan.state == "busy"
-    assert audiofone_module.busy_timer is None
-    audiofone_module.tones.busy.assert_called_once()
-
-
-# timers
-
-def test_start_busy_timer_creates_and_starts_timer():
-    audiofone_module.start_busy_timer()
-    timer = audiofone_module.busy_timer
-    assert isinstance(timer, FakeTimer)
-    assert timer.interval == audiofone_module.BUSY_TIMEOUT
-    assert timer.function is audiofone_module.play_busy
-    assert timer.started is True
-
-
-def test_start_busy_timer_cancels_existing_timers_first():
-    old_busy = FakeTimer(1, lambda: None)
-    old_ring = FakeTimer(1, lambda: None)
-    audiofone_module.busy_timer = old_busy
-    audiofone_module.ring_timer = old_ring
-    audiofone_module.start_busy_timer()
-    assert old_busy.cancelled is True
-    assert old_ring.cancelled is True
-
-
-def test_cancel_busy_timer_cancels_and_clears():
-    timer = FakeTimer(1, lambda: None)
-    audiofone_module.busy_timer = timer
-    audiofone_module.cancel_busy_timer()
-    assert timer.cancelled is True
-    assert audiofone_module.busy_timer is None
-
-
-def test_cancel_busy_timer_noop_when_none():
-    audiofone_module.busy_timer = None
-    audiofone_module.cancel_busy_timer()
-    assert audiofone_module.busy_timer is None
-
-
-def test_cancel_ring_timer_cancels_and_clears():
-    timer = FakeTimer(1, lambda: None)
-    audiofone_module.ring_timer = timer
-    audiofone_module.cancel_ring_timer()
-    assert timer.cancelled is True
-    assert audiofone_module.ring_timer is None
-
-
-def test_cancel_timers_cancels_both():
-    busy = FakeTimer(1, lambda: None)
-    ring = FakeTimer(1, lambda: None)
-    audiofone_module.busy_timer = busy
-    audiofone_module.ring_timer = ring
-    audiofone_module.cancel_timers()
-    assert busy.cancelled is True
-    assert ring.cancelled is True
-
-
 # on_keydown
 
 def test_on_keydown_does_nothing_when_on_hook():
-    audiofone_module.dialplan.to_onhook()
+    # dialplan starts onhook; keypresses are ignored until off hook.
     audiofone_module.on_keydown("5")
     audiofone_module.tones.key.assert_not_called()
+    assert audiofone_module.dialplan.state == "onhook"
 
 
 def test_on_keydown_plays_key_tone_when_off_hook():
     audiofone_module.dialplan.to_dialtone()
+    audiofone_module.tones.reset_mock()  # discard on_enter_dialtone's calls
     audiofone_module.on_keydown("5")
     audiofone_module.tones.off.assert_called_once()
     audiofone_module.tones.key.assert_called_once_with("5")
@@ -245,30 +155,22 @@ def test_on_keydown_plays_key_tone_when_off_hook():
 def test_on_keydown_restarts_busy_timer_when_off_hook():
     audiofone_module.dialplan.to_dialtone()
     audiofone_module.on_keydown("5")
-    assert isinstance(audiofone_module.busy_timer, FakeTimer)
-    assert audiofone_module.busy_timer.started is True
-
-
-def test_on_keydown_plays_off_and_key_in_busy_state():
-    # Once off hook, on_keydown always silences and plays the key tone,
-    # regardless of which off-hook state we're in.
-    audiofone_module.dialplan.to_busy()
-    audiofone_module.tones.reset_mock()  # discard enter_busy's tone calls
-    audiofone_module.on_keydown("5")
-    audiofone_module.tones.off.assert_called_once()
-    audiofone_module.tones.key.assert_called_once_with("5")
+    timer = audiofone_module.dialplan.busy_timer
+    assert isinstance(timer, FakeTimer)
+    assert timer.started is True
 
 
 # on_handset_pickup
 
-def test_on_handset_pickup_resets_state():
+def test_on_handset_pickup_resets_state_and_starts_dialtone():
     audiofone_module.dialed_number = "999"
     audiofone_module.on_handset_pickup()
     assert audiofone_module.dialplan.state == "dialtone"
     assert audiofone_module.dialed_number == ""
     audiofone_module.tones.dialtone.assert_called_once()
-    assert isinstance(audiofone_module.busy_timer, FakeTimer)
-    assert audiofone_module.busy_timer.started is True
+    timer = audiofone_module.dialplan.busy_timer
+    assert isinstance(timer, FakeTimer)
+    assert timer.started is True
 
 
 # on_hangup
@@ -277,8 +179,8 @@ def test_on_hangup_resets_state_cancels_keypad_and_timers():
     audiofone_module.dialplan.to_dialtone()
     busy = FakeTimer(1, lambda: None)
     ring = FakeTimer(1, lambda: None)
-    audiofone_module.busy_timer = busy
-    audiofone_module.ring_timer = ring
+    audiofone_module.dialplan.busy_timer = busy
+    audiofone_module.dialplan.ring_timer = ring
 
     audiofone_module.on_hangup()
 
@@ -296,15 +198,15 @@ def test_on_hangup_from_any_state_returns_onhook():
     assert audiofone_module.dialplan.state == "onhook"
 
 
-# start_number_event / play_audio_after_ring
+# start_number_event
 
 def test_start_number_event_rings_and_starts_timer(monkeypatch):
-    monkeypatch.setattr(audiofone_module.random, "randrange", lambda a, b: 7)
+    monkeypatch.setattr(context.random, "randrange", lambda a, b: 7)
     audiofone_module.dialplan.to_digits()
     audiofone_module.start_number_event("555_test")
     assert audiofone_module.dialplan.state == "ringing"
     audiofone_module.tones.ring.assert_called_once()
-    timer = audiofone_module.ring_timer
+    timer = audiofone_module.dialplan.ring_timer
     assert isinstance(timer, FakeTimer)
     assert timer.interval == 7
     assert timer.started is True
@@ -312,26 +214,7 @@ def test_start_number_event_rings_and_starts_timer(monkeypatch):
 
 def test_start_number_event_cancels_existing_timers():
     old_busy = FakeTimer(1, lambda: None)
-    audiofone_module.busy_timer = old_busy
+    audiofone_module.dialplan.to_digits()
+    audiofone_module.dialplan.busy_timer = old_busy
     audiofone_module.start_number_event("555_test")
     assert old_busy.cancelled is True
-
-
-def test_play_audio_after_ring_plays_and_clears_timer():
-    audiofone_module.dialplan.to_ringing()
-    audiofone_module.ring_timer = FakeTimer(1, lambda: None)
-    audiofone_module.play_audio_after_ring("555_test")
-    assert audiofone_module.dialplan.state == "audio"
-    audiofone_module.tones.off.assert_called_once()
-    audiofone_module.tones.play_audio.assert_called_once_with("555_test")
-    assert audiofone_module.ring_timer is None
-
-
-# state machine tolerance (regression guard for the ignore_invalid_triggers fix)
-
-def test_dialplan_ignores_invalid_key_trigger():
-    # A key release can arrive while the machine is in 'busy'; the 'key'
-    # transition isn't defined there and must be ignored, not raise.
-    audiofone_module.dialplan.to_busy()
-    audiofone_module.dialplan.key_up()
-    assert audiofone_module.dialplan.state == "busy"

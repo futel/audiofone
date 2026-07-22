@@ -40,6 +40,7 @@ class Dialplan(object):
         self.tones = tones
         self.busy_timer = None
         self.ring_timer = None
+        self.dialed_number = ''
 
     def log_state(self, event):
         log("before state %s %s %s" % (event.state, event.event, event.args))
@@ -82,10 +83,11 @@ class Dialplan(object):
         self.ring_timer = None
 
     def on_enter_onhook(self, event):
-        self.cancel_busy_timer()
+        self.cancel_timers()
         self.tones.off()
 
     def on_enter_dialtone(self, event):
+        self.dialed_number = ''
         self.tones.dialtone()
         self.start_busy_timer()
 
