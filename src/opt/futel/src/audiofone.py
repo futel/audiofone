@@ -10,14 +10,12 @@ from keypad import Keypad
 from tones import Tones
 from log import log
 
-import time
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
 
 # globals for the ongoing interaction
 dialplan = None
-tones = None
 keypad = None
 
 
@@ -27,13 +25,17 @@ def on_hangup():
     Set dialplan state, cancel all tones and timers.
     """
     global dialplan
+    global keypad
     dialplan.hook_down()
-    keypad.cancel()             # XXX
+    # Awkward. We need to cancel because if the key is pressed and the
+    # hook is then pressed, and then the hook is released, the key tone
+    # will not be playing. If the key is then released, the key release event
+    # will happen, but the user did not hear the tone.
+    keypad.cancel()
 
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
     global dialplan
-    global tones
     global keypad
 
     tones = Tones()
