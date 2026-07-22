@@ -21,17 +21,6 @@ tones = None
 keypad = None
 
 
-def on_keydown(key):
-    """Callback for when a key is pressed."""
-    global dialplan
-    if(dialplan.is_onhook()):
-        return                  # Ignore keypresses when onhook.
-    log("on_keydown %s" % key)
-    tones.off()
-    tones.key(key)
-    dialplan.cancel_timers()    # XXX
-    dialplan.start_busy_timer() # XXX
-
 def on_hangup():
     """
     Callback for when the hookswitch is lowered.

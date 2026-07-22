@@ -11,7 +11,6 @@ states = [
     State(name='onhook'),
     State(name='dialtone'),
     State(name='busy'),
-    #State(name='key_down'),
     State(name='digits'),
     State(name='ringing'),
     State(name='audio')]
