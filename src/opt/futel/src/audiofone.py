@@ -13,8 +13,6 @@ from log import log
 from enum import Enum, auto
 import os
 import time
-import threading
-import random
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
@@ -23,7 +21,6 @@ audio_directory = "/mnt/futel"
 # globals for the ongoing interaction
 dialed_number = ''
 dialplan = None
-ring_timer = None
 tones = None
 keypad = None
 
@@ -32,18 +29,6 @@ class NumberValidity(Enum):
     INVALID_KEY = auto()
     NOT_PREFIX = auto()
     POSSIBLE_PREFIX = auto()
-
-
-def cancel_timers():
-    global dialplan
-    dialplan.cancel_busy_timer() # XXX
-    cancel_ring_timer()
-
-def cancel_ring_timer():
-    global ring_timer
-    if ring_timer is not None:
-        ring_timer.cancel()
-    ring_timer = None
 
 def on_keydown(key):
     """Callback for when a key is pressed."""
@@ -58,7 +43,7 @@ def on_keydown(key):
     log("on_keydown %s" % key)
     tones.off()
     tones.key(key)
-    cancel_timers()
+    dialplan.cancel_timers()    # XXX
     dialplan.start_busy_timer() # XXX
 
 def on_handset_pickup():
@@ -76,7 +61,7 @@ def on_hangup():
     global dialplan
     dialplan.hook_down()
     keypad.cancel()
-    cancel_timers()
+    dialplan.cancel_timers()    # XXX
 
 def have_number(number):
     """
@@ -96,21 +81,9 @@ def start_number_event(soundfile):
     Enter ringing state, start thread to play soundfile after timer.
     """
     global dialplan
-    global ring_timer
-    ring_time = random.randrange(4, 13)
-    log("Ring for %d seconds" % (ring_time))
     tones.ring()
-    cancel_timers()
-    dialplan.complete_key() 
-    ring_timer = threading.Timer(
-        ring_time, lambda: play_audio_after_ring(soundfile))
-    ring_timer.start()
-
-def play_audio_after_ring(soundfile):
-    global dialplan
-    global ring_timer
-    dialplan.done_ringing(soundfile=soundfile)
-    ring_timer = None
+    dialplan.cancel_timers()    # XXX
+    dialplan.complete_key(soundfile=soundfile)
 
 def soundfile_number(filename):
     """ Return number corresponding to soundfile. """

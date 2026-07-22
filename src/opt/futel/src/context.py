@@ -1,3 +1,4 @@
+import random
 import threading
 from transitions import Machine, State
 
@@ -38,6 +39,7 @@ class Dialplan(object):
     def __init__(self, tones):
         self.tones = tones
         self.busy_timer = None
+        self.ring_timer = None
 
     def log_state(self, event):
         log("before state %s %s %s" % (event.state, event.event, event.args))
@@ -46,10 +48,19 @@ class Dialplan(object):
         log("Too long off hook...")
         self.dialtone_timeout()
 
+    def cancel_timers(self):
+        self.cancel_busy_timer()
+        self.cancel_ring_timer()
+
     def cancel_busy_timer(self):
         if self.busy_timer is not None:
             self.busy_timer.cancel()
             self.busy_timer = None
+
+    def cancel_ring_timer(self):
+        if self.ring_timer is not None:
+            self.ring_timer.cancel()
+            self.ring_timer = None
 
     def start_busy_timer(self):
         log("starting busy timer")
@@ -57,6 +68,18 @@ class Dialplan(object):
         # XXX also cancel_timers()
         self.busy_timer = threading.Timer(BUSY_TIMEOUT, self.play_busy)
         self.busy_timer.start()
+
+    def start_ring_timer(self, soundfile):
+        log("starting ring timer")
+        ring_time = random.randrange(4, 13)
+        log("Ring for %d seconds" % (ring_time))
+        self.ring_timer = threading.Timer(
+            ring_time, lambda: self.play_audio_after_ring(soundfile))
+        self.ring_timer.start()
+
+    def play_audio_after_ring(self, soundfile):
+        self.done_ringing(soundfile=soundfile)
+        self.ring_timer = None
 
     def on_enter_onhook(self, event):
         self.cancel_busy_timer()
@@ -69,6 +92,10 @@ class Dialplan(object):
     def on_enter_busy(self, event):
         self.tones.off()
         self.tones.busy()
+
+    def on_enter_ringing(self, event):
+        soundfile = event.kwargs.get('soundfile')
+        self.start_ring_timer(soundfile)
 
     def on_enter_audio(self, event):
         soundfile = event.kwargs.get('soundfile')
