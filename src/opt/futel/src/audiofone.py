@@ -18,13 +18,11 @@ import random
 
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
-BUSY_TIMEOUT = 15.0 # seconds
 audio_directory = "/mnt/futel"
 
 # globals for the ongoing interaction
 dialed_number = ''
 dialplan = None
-busy_timer = None
 ring_timer = None
 tones = None
 keypad = None
@@ -36,29 +34,10 @@ class NumberValidity(Enum):
     POSSIBLE_PREFIX = auto()
 
 
-def play_busy():
-    global dialplan
-    global busy_timer
-    log("Too long off hook...")
-    busy_timer = None
-    dialplan.dialtone_timeout()
-
-def start_busy_timer():
-    global busy_timer
-    log("starting busy timer")
-    cancel_timers()
-    busy_timer = threading.Timer(BUSY_TIMEOUT, play_busy)
-    busy_timer.start()
-
 def cancel_timers():
-    cancel_busy_timer()
+    global dialplan
+    dialplan.cancel_busy_timer() # XXX
     cancel_ring_timer()
-
-def cancel_busy_timer():
-    global busy_timer
-    if busy_timer is not None:
-        busy_timer.cancel()
-    busy_timer = None
 
 def cancel_ring_timer():
     global ring_timer
@@ -80,7 +59,7 @@ def on_keydown(key):
     tones.off()
     tones.key(key)
     cancel_timers()
-    start_busy_timer()
+    dialplan.start_busy_timer() # XXX
 
 def on_handset_pickup():
     """Callback for when the hookswitch is raised."""
@@ -88,7 +67,6 @@ def on_handset_pickup():
     global dialed_number
     dialplan.hook_up()
     dialed_number = ''
-    start_busy_timer()
 
 def on_hangup():
     """
@@ -123,7 +101,7 @@ def start_number_event(soundfile):
     log("Ring for %d seconds" % (ring_time))
     tones.ring()
     cancel_timers()
-    dialplan.complete_key()
+    dialplan.complete_key() 
     ring_timer = threading.Timer(
         ring_time, lambda: play_audio_after_ring(soundfile))
     ring_timer.start()
