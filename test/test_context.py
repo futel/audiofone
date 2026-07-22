@@ -50,8 +50,13 @@ def tones():
 
 
 @pytest.fixture
-def dialplan(tones):
-    return get_dialplan(tones)
+def keypad():
+    return MagicMock(name="Keypad")
+
+
+@pytest.fixture
+def dialplan(tones, keypad):
+    return get_dialplan(tones, keypad)
 
 
 def stub_have_number(monkeypatch, result):
@@ -111,6 +116,12 @@ def test_hook_down_from_dialtone_enters_onhook(dialplan, tones):
     dialplan.hook_down()
     assert dialplan.is_onhook() is True
     tones.off.assert_called_once_with()
+
+
+def test_hook_down_cancels_keypad(dialplan, keypad):
+    dialplan.hook_up()
+    dialplan.hook_down()
+    keypad.cancel.assert_called_once_with()
 
 
 def test_hook_down_cancels_and_clears_timers(dialplan):

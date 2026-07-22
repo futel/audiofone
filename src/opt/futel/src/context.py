@@ -44,8 +44,9 @@ transitions = [
 class Dialplan(object):
     """Object to run state machine actions."""
 
-    def __init__(self, tones):
+    def __init__(self, tones, keypad):
         self.tones = tones
+        self.keypad = keypad
         self.busy_timer = None
         self.ring_timer = None
         self.dialed_number = ''
@@ -74,7 +75,6 @@ class Dialplan(object):
     def start_busy_timer(self):
         log("starting busy timer")
         self.cancel_busy_timer()
-        # XXX also cancel_timers()
         self.busy_timer = threading.Timer(BUSY_TIMEOUT, self.play_busy)
         self.busy_timer.start()
 
@@ -93,6 +93,11 @@ class Dialplan(object):
     def on_enter_onhook(self, event):
         self.cancel_timers()
         self.tones.off()
+        # We need to cancel because if the key is pressed and the
+        # hook is then pressed, and then the hook is released, the key tone
+        # will not be playing. If the key is then released, the key release event
+        # will happen, but the user did not hear the tone.
+        self.keypad.cancel()
 
     def on_enter_dialtone(self, event):
         self.dialed_number = ''
@@ -146,9 +151,9 @@ class Dialplan(object):
         self.complete_key(soundfile=soundfile)
 
 
-def get_dialplan(tones):
+def get_dialplan(tones, keypad):
     """Create, set up, and return the object to become the state machine."""
-    dialplan = Dialplan(tones)
+    dialplan = Dialplan(tones, keypad)
 
     # Attach state machinery to the dialplan object. The transitions library
     # adds the trigger methods (hook_down, hook_up, ...) and is_<state>()

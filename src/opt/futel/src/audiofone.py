@@ -14,48 +14,25 @@ from log import log
 # BCM GPIO pin on the pi connected to the hookswitch.
 HOOKSWITCH_PIN = 7
 
-# globals for the ongoing interaction
-dialplan = None
-keypad = None
-
-
-def on_hangup():
-    """
-    Callback for when the hookswitch is lowered.
-    Set dialplan state, cancel all tones and timers.
-    """
-    global dialplan
-    global keypad
-    dialplan.hook_down()
-    # Awkward. We need to cancel because if the key is pressed and the
-    # hook is then pressed, and then the hook is released, the key tone
-    # will not be playing. If the key is then released, the key release event
-    # will happen, but the user did not hear the tone.
-    keypad.cancel()
-
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
-    global dialplan
-    global keypad
-
     tones = Tones()
     tones.off()
 
     # Keypad monitor, we use it to busy wait for events.
     keypad = Keypad()
-
-    dialplan = context.get_dialplan(tones)
-
-    # Hookswitch monitor. This will call the callbacks without blocking.
-    hookswitch = Hookswitch(on_hook_up=dialplan.hook_up,
-                            on_hook_down=on_hangup,
-                            pin=HOOKSWITCH_PIN)
+    # The dialplan state machine.
+    dialplan = context.get_dialplan(tones, keypad)
+    hookswitch = Hookswitch(
+        on_hook_up=dialplan.hook_up,
+        on_hook_down=dialplan.hook_down,
+        pin=HOOKSWITCH_PIN)
     hookswitch.run()
 
     while(True):
         # Tell the keypad to busy wait and call dialplan.key_press
         # when a key press happens, with the key as an argument, then
-        # busy wait and return the key.
+        # busy wait and return the key on key release or cancel.
         key = keypad.read_key(dialplan.key_press)
         # The key has been lifted or cancelled.
         if(key == ''):
