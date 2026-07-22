@@ -64,6 +64,10 @@ def main():
 
     tones = Tones()
     tones.off()
+
+    # Keypad monitor, we use it to busy wait for events.
+    keypad = Keypad()
+
     dialplan = context.get_dialplan(tones)
 
     # Hookswitch monitor. This will call the callbacks without blocking.
@@ -72,13 +76,10 @@ def main():
                             pin=HOOKSWITCH_PIN)
     hookswitch.run()
 
-    # Keypad monitor, we use it to busy wait for events.
-    keypad = Keypad(on_keydown)
-
     while(True):
         # Busy wait until the keypad returns with key up result. Key down
         # results are handled with a callback, we busy wait for key up.
-        k = keypad.read_key()
+        k = keypad.read_key(on_keydown)
         if(k == ''):
             log("key read cancelled")
             continue

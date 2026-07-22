@@ -38,14 +38,14 @@ def _pressed_at(index):
 
 
 def test_init_configures_rows_as_outputs():
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     assert [d.pin.info.name for d in kp._rows] == _pin_names(ROW_PINS)
     for device in kp._rows:
         assert device.pin.function == "output"
 
 
 def test_init_configures_columns_as_input_with_pullup():
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     assert [d.pin.info.name for d in kp._cols] == _pin_names(COL_PINS)
     for device in kp._cols:
         assert device.pin.function == "input"
@@ -53,20 +53,20 @@ def test_init_configures_columns_as_input_with_pullup():
 
 
 def test_init_drives_all_rows_high():
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     for device in kp._rows:
         assert device.value == 1
 
 
 def test_cancel_sets_cancelled_flag():
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     assert kp._cancelled is False
     kp.cancel()
     assert kp._cancelled is True
 
 
 def test_all_rows_high_drives_every_row_pin_high():
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     for device in kp._rows:
         device.off()
     kp._all_rows_high()
@@ -77,7 +77,7 @@ def test_all_rows_high_drives_every_row_pin_high():
 def test_read_key_returns_empty_string_when_cancelled_before_any_press(
     monkeypatch,
 ):
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     _script_columns(kp, [False])  # nothing ever pressed
 
     def fake_sleep(seconds):
@@ -85,7 +85,7 @@ def test_read_key_returns_empty_string_when_cancelled_before_any_press(
 
     monkeypatch.setattr(keypad_module.time, "sleep", fake_sleep)
 
-    assert kp.read_key() == ""
+    assert kp.read_key(MagicMock()) == ""
 
 
 @pytest.mark.parametrize(
@@ -103,10 +103,10 @@ def test_read_key_detects_keypress_at_each_position(
     monkeypatch.setattr(keypad_module.time, "sleep", lambda seconds: None)
 
     on_keydown = MagicMock()
-    kp = Keypad(on_keydown)
+    kp = Keypad()
     _script_columns(kp, _pressed_at(row * 3 + col))
 
-    result = kp.read_key()
+    result = kp.read_key(on_keydown)
 
     assert result == expected_key
     on_keydown.assert_called_once_with(expected_key)
@@ -116,11 +116,11 @@ def test_read_key_polls_until_key_is_released(monkeypatch):
     monkeypatch.setattr(keypad_module.time, "sleep", lambda seconds: None)
 
     on_keydown = MagicMock()
-    kp = Keypad(on_keydown)
+    kp = Keypad()
     # row0, col0 -> '1': pressed at first check, held twice, then released.
     _script_columns(kp, [True, True, True, False])
 
-    result = kp.read_key()
+    result = kp.read_key(on_keydown)
 
     assert result == "1"
     on_keydown.assert_called_once_with("1")
@@ -129,7 +129,7 @@ def test_read_key_polls_until_key_is_released(monkeypatch):
 def test_read_key_returns_empty_string_if_cancelled_while_waiting_for_release(
     monkeypatch,
 ):
-    kp = Keypad(MagicMock())
+    kp = Keypad()
     _script_columns(kp, [True])  # pressed and never released
 
     def fake_sleep(seconds):
@@ -137,4 +137,4 @@ def test_read_key_returns_empty_string_if_cancelled_while_waiting_for_release(
 
     monkeypatch.setattr(keypad_module.time, "sleep", fake_sleep)
 
-    assert kp.read_key() == ""
+    assert kp.read_key(MagicMock()) == ""

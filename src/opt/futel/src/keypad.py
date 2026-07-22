@@ -27,9 +27,8 @@ class Keypad:
     For detecting when keys are pressed or released.
     """
 
-    def __init__(self, on_keydown):
+    def __init__(self):
         self._cancelled = False
-        self._on_keydown = on_keydown
         # TODO: get all this shit out of the constructor
         self._rows = [
             OutputDevice(PINS['row%d' % (row)], initial_value=True)
@@ -45,7 +44,7 @@ class Keypad:
     def cancel(self):
         self._cancelled = True
 
-    def read_key(self):
+    def read_key(self, on_keydown):
         """
         Busy wait until we detect a keydown or cancel. On keydown, callback and
         busy wait until we detect a keyup or cancel, then return token for what
@@ -61,7 +60,7 @@ class Keypad:
                     if(self._cols[col].is_pressed):
                         key_name = DIGITS[row][col]
 
-                        self._on_keydown(key_name)  # Invoke keydown callback
+                        on_keydown(key_name)  # Invoke keydown callback
 
                         while(self._cols[col].is_pressed):
                             if(self._cancelled): return ''
@@ -79,8 +78,8 @@ if __name__ == "__main__":
     from log import log
     def on_keydown(key_name):
         log("down %s" % (key_name))
-    k = Keypad(on_keydown)
+    k = Keypad()
     while(True):
         log("Waiting for a key...")
-        digit = k.read_key()
+        digit = k.read_key(on_keydown)
         log("Saw key: %s" % (digit))
