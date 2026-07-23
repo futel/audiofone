@@ -4,6 +4,7 @@ from transitions import Machine, State
 
 import dialnumbers
 from log import log
+from tones import Tones
 
 BUSY_TIMEOUT = 15.0 # seconds
 
@@ -160,8 +161,9 @@ class Dialplan(object):
         self.complete_key(soundfile=soundfile)
 
 
-def get_dialplan(tones, keypad):
+def get_dialplan(keypad):
     """Create, set up, and return the object to become the state machine."""
+    tones = Tones()
     dialplan = Dialplan(tones, keypad)
 
     # Attach state machinery to the dialplan object. The transitions library

@@ -15,6 +15,7 @@ class Tones:
     """
     def __init__(self, host='127.0.0.1', port=NETRECEIVE_PORT):
         self.client = udp_client.SimpleUDPClient(host, port)
+        self.off()
 
     def dialtone(self):
         self.client.send_message('/dialtone', '')

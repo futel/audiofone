@@ -17,7 +17,11 @@ def mock_client(monkeypatch):
 
 @pytest.fixture
 def tones(mock_client):
-    return Tones()
+    instance = Tones()
+    # The constructor sends an initial /off; drop it so per-method tests can
+    # assert on a clean send_message.
+    mock_client.reset_mock()
+    return instance
 
 
 def test_constructor_uses_default_host_and_port(mock_client):
@@ -30,6 +34,11 @@ def test_constructor_uses_default_host_and_port(mock_client):
 def test_constructor_uses_given_host_and_port(mock_client):
     Tones(host="10.0.0.5", port=1234)
     tones_module.udp_client.SimpleUDPClient.assert_called_once_with("10.0.0.5", 1234)
+
+
+def test_constructor_sends_off(mock_client):
+    Tones()
+    mock_client.send_message.assert_called_once_with("/off", "")
 
 
 def test_dialtone_sends_dialtone_message(tones, mock_client):

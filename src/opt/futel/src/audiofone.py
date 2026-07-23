@@ -7,7 +7,6 @@ To be run continuously on the pi.
 import context
 from hookswitch import Hookswitch
 from keypad import Keypad
-from tones import Tones
 from log import log
 
 
@@ -16,13 +15,11 @@ HOOKSWITCH_PIN = 7
 
 def main():
     """ Set up hardware and run the read/dispatch loop forever. """
-    tones = Tones()
-    tones.off()
-
     # Keypad monitor, we use it to busy wait for events.
     keypad = Keypad()
-    # The dialplan state machine.
-    dialplan = context.get_dialplan(tones, keypad)
+    # Get dialplan state machine, which can cancel the keypad.
+    dialplan = context.get_dialplan(keypad)
+    # Set up the hookswitch to callback the dialplan transitions.
     hookswitch = Hookswitch(
         on_hook_up=dialplan.hook_up,
         on_hook_down=dialplan.hook_down,
@@ -38,6 +35,7 @@ def main():
         if(key == ''):
             log("key read cancelled")
             continue
+        # Callback the dialplan transition with the key released.
         dialplan.key_release(key=key)
 
 

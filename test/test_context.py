@@ -45,8 +45,12 @@ def fixed_ring_time(monkeypatch):
 
 
 @pytest.fixture
-def tones():
-    return MagicMock(name="Tones")
+def tones(monkeypatch):
+    """get_dialplan builds its own Tones(); patch the class so the dialplan
+    uses this mock and tests can assert on it."""
+    instance = MagicMock(name="Tones")
+    monkeypatch.setattr(context, "Tones", lambda: instance)
+    return instance
 
 
 @pytest.fixture
@@ -56,7 +60,7 @@ def keypad():
 
 @pytest.fixture
 def dialplan(tones, keypad):
-    return get_dialplan(tones, keypad)
+    return get_dialplan(keypad)
 
 
 def stub_have_number(monkeypatch, result):
