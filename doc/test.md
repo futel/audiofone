@@ -2,7 +2,7 @@
 
 ## Setup
 
-See "Set up local testing environment" in install.md.
+See "Set up local testing environment" in [install.md](install.md).
 
 ## Run unit tests
 
