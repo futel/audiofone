@@ -14,7 +14,7 @@ To be done once.
 
 ## Set up content
 
-See content.md. Normalize, put sound files on drive, attach drive to pi.
+See [content.md](content.md). Normalize, put sound files on drive, attach drive to pi.
 
 ## Set up local testing environment
 
