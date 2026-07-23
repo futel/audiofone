@@ -24,7 +24,7 @@ See content.md. Normalize, put sound files on drive, attach drive to pi.
 
 ## Test
 
-Run the automated tests, see test.md.
+Run the automated tests, see [test.md](test.md).
 
 ## Set up destination media
 
