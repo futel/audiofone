@@ -4,7 +4,7 @@ Main audiofone entrypoint.
 To be run continuously on the pi.
 """
 
-import context
+import dialtone_context
 from hookswitch import Hookswitch
 from keypad import Keypad
 from log import log
@@ -18,7 +18,7 @@ def main():
     # Keypad monitor, we use it to busy wait for events.
     keypad = Keypad()
     # Get dialplan state machine, which can cancel the keypad.
-    dialplan = context.get_dialplan(keypad)
+    dialplan = dialtone_context.get_dialplan(keypad)
     # Set up the hookswitch to callback the dialplan transitions.
     hookswitch = Hookswitch(
         on_hook_up=dialplan.hook_up,

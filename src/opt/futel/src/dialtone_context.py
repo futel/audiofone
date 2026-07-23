@@ -129,6 +129,7 @@ class Dialplan(object):
         self.tones.play_audio(soundfile)
 
     def on_enter_digits(self, event):
+        """ Stop all audio and timers, play key tone, start busy timer. """
         key = event.kwargs.get('key')
         self.tones.off()
         self.tones.key(key)

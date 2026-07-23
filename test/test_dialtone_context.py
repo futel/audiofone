@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-import context
+import dialtone_context
 import dialnumbers
-from context import BUSY_TIMEOUT, Dialplan, get_dialplan
+from dialtone_context import BUSY_TIMEOUT, Dialplan, get_dialplan
 from dialnumbers import NumberValidity
 
 
@@ -34,14 +34,14 @@ class FakeTimer:
 def fake_timer(monkeypatch):
     """Replace threading.Timer so no real timer threads escape a test."""
     FakeTimer.instances = []
-    monkeypatch.setattr(context.threading, "Timer", FakeTimer)
+    monkeypatch.setattr(dialtone_context.threading, "Timer", FakeTimer)
     return FakeTimer
 
 
 @pytest.fixture(autouse=True)
 def fixed_ring_time(monkeypatch):
     """Make the random ring duration deterministic."""
-    monkeypatch.setattr(context.random, "randrange", lambda a, b: 7)
+    monkeypatch.setattr(dialtone_context.random, "randrange", lambda a, b: 7)
 
 
 @pytest.fixture
@@ -49,7 +49,7 @@ def tones(monkeypatch):
     """get_dialplan builds its own Tones(); patch the class so the dialplan
     uses this mock and tests can assert on it."""
     instance = MagicMock(name="Tones")
-    monkeypatch.setattr(context, "Tones", lambda: instance)
+    monkeypatch.setattr(dialtone_context, "Tones", lambda: instance)
     return instance
 
 
