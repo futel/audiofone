@@ -44,17 +44,17 @@ Connect the pi to the local network. Update deploy/hosts for correct pibox ip ad
 
 ## Install
 
-- ansible-playbook -i deploy/hosts playbook.yml
+- `ansible-playbook -i deploy/hosts playbook.yml`
 - copy content
   - XXX
 - ssh into the box and run alsamixer while doing the tests below
-  - aplay /mnt/futel/5852239851.wav
+  - `aplay /mnt/futel/5852239851.wav`
   - have the interface and run them on the real hardware
   - adjust the volume and exit alsamixer
 - reboot the pi
-  - sudo shutdown -r now
+  - `sudo shutdown -r now`
 
 ## Test
 
-Run the manual tests, see test.py.
+Run the manual tests, see [test.md](test.md).
 
