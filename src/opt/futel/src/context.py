@@ -16,28 +16,33 @@ states = [
     State(name='audio')]
 
 transitions = [
+    # Play dialtone on hook up.
     {'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
+    # Stop all audio and timers on hook down.
     {'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
+    # Go to busy on dialtone timeout.
     {'trigger': 'dialtone_timeout',
       'source': ['dialtone', 'digits'],
       'dest': 'busy' },
     # Don't change state for these internal transitions. Don't call exit or
     # enter callbacks.
-    {'trigger': 'key_press',
+    {'trigger': ['key_press', 'key_release'],
      'source': ['onhook', 'busy', 'ringing', 'audio'],
      'dest': None},
-    {'trigger': 'key_release',
-      'source': ['onhook', 'busy', 'ringing', 'audio'],
-      'dest': None},
+    # Play key of key press from dialtone or digits.
     {'trigger': 'key_press',
      'source': ['dialtone', 'digits'],
      'dest': 'digits' },
+    # Build number with key release from dialtone or digits.
     {'trigger': 'key_release',
       'source': ['dialtone', 'digits'],
       'dest': 'digits',
       'after': 'after_key_release'},
-    {'trigger': 'complete_key', 'source': 'dialtone', 'dest': 'ringing' },
-    {'trigger': 'complete_key', 'source': 'digits', 'dest': 'ringing' },
+    # Go to ringing on complete key from dialtone or digits.
+    {'trigger': 'complete_key',
+     'source': ['dialtone', 'digits'],
+     'dest': 'ringing' },
+    # Go to audio after ringing.
     {'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
 ]
 
@@ -166,9 +171,5 @@ def get_dialplan(tones, keypad):
         before_state_change='log_state',
         send_event=True,
         initial='onhook')
-
-    # Treat invalid triggers as no-ops instead of raising MachineError.
-    # XXX It would be better to check and remove these bugs instead.
-    # machine.ignore_invalid_triggers = True
 
     return dialplan
