@@ -21,7 +21,8 @@ transitions = [
     {'trigger': 'dialtone_timeout',
       'source': ['dialtone', 'digits'],
       'dest': 'busy' },
-    # Don't change state for keys from these states.
+    # Don't change state for these internal transitions. Don't call exit or
+    # enter callbacks.
     {'trigger': 'key_press',
      'source': ['onhook', 'busy', 'ringing', 'audio'],
      'dest': None},
