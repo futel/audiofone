@@ -33,8 +33,8 @@ Run the automated tests, see [test.md](test.md).
 - enable ssh on the pi with default pi/raspberry login on the boot media
   - https://www.raspberrypi.com/documentation/computers/getting-started.html#manual-ssh-setup
   - touch /ssh on the bootfs partition
-  - echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl
-  - echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi
+  - `echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl`
+  - `echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi`
 
 # Install on destination hardware
 
