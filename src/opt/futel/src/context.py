@@ -21,10 +21,6 @@ transitions = [
     {'trigger': 'hook_up', 'source': 'onhook', 'dest': 'dialtone' },
     # Stop all audio and timers on hook down.
     {'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
-    # Go to busy on dialtone timeout.
-    {'trigger': 'dialtone_timeout',
-     'source': ['dialtone', 'digits'],
-     'dest': 'busy' },
     # Don't change state for these internal transitions. Don't call exit or
     # enter callbacks.
     {'trigger': 'key_press',
@@ -48,6 +44,10 @@ transitions = [
      'dest': 'ringing' },
     # Go to audio after ringing.
     {'trigger': 'done_ringing', 'source': 'ringing', 'dest': 'audio' },
+    # Go to busy on dialtone timeout.
+    {'trigger': 'dialtone_timeout',
+     'source': ['dialtone', 'digits'],
+     'dest': 'busy' },
 ]
 
 
