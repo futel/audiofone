@@ -2,7 +2,7 @@
 
 ## Setup
 
-See "Set up local testing environment" in install.md.
+See "Set up local testing environment" in [install.md](install.md).
 
 ## Run unit tests
 
@@ -13,7 +13,7 @@ source venv/bin/activate
 # Test on pi
 
 ## Manual tests
-b
+
 On boot, supervisord will launch the main audiofone.py app and
 puredata.
 
