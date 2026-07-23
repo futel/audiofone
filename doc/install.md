@@ -35,8 +35,8 @@ Run the automated tests, see [test.md](test.md).
   - touch /ssh on the bootfs partition
   - `echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl`
   - `echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi`
-- because headless networking is hard to get correct, you can use a usb-to-serial
-  cable from your pc to the pi serial gpio pins (optional):
+- (optional) because headless networking is hard to get correct, you can use a usb-to-serial
+  cable from your pc to the pi serial gpio pins:
   - Add the following 2 lines to config.txt:
   - `enable_uart=1`
   - `dtoverlay=disable-bt`
