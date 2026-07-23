@@ -13,7 +13,7 @@ source venv/bin/activate
 # Test on pi
 
 ## Manual tests
-b
+
 On boot, supervisord will launch the main audiofone.py app and
 puredata.
 
