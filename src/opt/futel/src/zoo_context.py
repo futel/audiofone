@@ -28,13 +28,15 @@ transitions = [
     # Don't change state for these internal transitions. Don't call exit or
     # enter callbacks.
     {'trigger': 'key_press',
-     'source': ['onhook', 'busy', 'audio'],
+     'source': ['onhook', 'busy'],
      'dest': None},
     {'trigger': 'key_release',
-     'source': ['onhook', 'busy', 'audio'],
+     'source': ['onhook', 'busy'],
      'dest': None},
     # Play key of key press from menu.
-    {'trigger': 'key_press', 'source': 'menu', 'dest': 'digits'},
+    {'trigger': 'key_press',
+     'source': ['menu', 'audio'],
+     'dest': 'digits'},
     # Play content after key release.
     {'trigger': 'key_release',
      'source': 'digits',
@@ -65,7 +67,7 @@ class Dialplan(object):
         self.audio_off()
         audio_path = audio_directory + filename
         audio_cmd = ['aplay', audio_path]
-        log("play %s" % (content_filename))
+        log("play %s" % (audio_path))
         self.audio_process = subprocess.Popen(audio_cmd)
 
     def on_enter_onhook(self, event):
@@ -77,9 +79,10 @@ class Dialplan(object):
         self.keypad.cancel()
 
     def on_enter_menu(self, event):
-        for _ in range(5):
-            self.play_audio(menu_filename)
-        self.go_busy()
+        self.play_audio(menu_filename)
+        # Would like to start a nonblocking timer to wait and then
+        # self.audio_process.poll() until the audio process is done, then
+        # self.go_busy(). Would need to cancel the timer on every state change.
 
     def on_enter_digits(self, event):
         """ Stop all audio, play key tone. """
@@ -92,8 +95,6 @@ class Dialplan(object):
         log("Key release => %s" %(key))
         self.audio_off()
         self.play_audio(content_filename)
-        self.play_audio(silence_filename)
-        self.go_busy()
 
     def on_enter_busy(self, event):
         self.audio_off()
