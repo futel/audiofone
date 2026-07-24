@@ -39,6 +39,32 @@ mentioned above.
 * GPIO 21 - pin40 - Output - keypad row 3
 * headphone jack -> earpiece audio
 
+## protel 25-pin D
+
+The protel key/hookswitch units have a 25-pin D connector on them.
+Can we pin these connections out?
+
+key 1 - 11 22
+key 2 - 11 10
+key 3 - 11 13
+key 4 - 12 22
+key 5 - 12 10
+key 6 - 12 13
+key 7 - 25 22
+key 8 - 25 10
+key 9 - 25 13
+key * - 23 22
+key 0 - 23 10
+key # - 23 13
+
+col 1 - pin 22
+col 2 - pin 10
+col 3 - pin 13
+row 1 - pin 11
+row 2 - pin 12
+row 3 - pin 25
+row 4 - pin 23
+
 # pd patch
 
 Audio is played through pd.  Python just commands it through
