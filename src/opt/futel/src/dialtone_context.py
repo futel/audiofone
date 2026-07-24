@@ -64,6 +64,15 @@ class Dialplan(object):
     def log_state(self, event):
         log("before state %s %s %s" % (event.state, event.event, event.args))
 
+    def on_enter_onhook(self, event):
+        self.cancel_timers()
+        self.tones.off()
+        # We need to cancel because if the key is pressed and the
+        # hook is then pressed, and then the hook is released, the key tone
+        # will not be playing. If the key is then released, the key release event
+        # will happen, but the user did not hear the tone.
+        self.keypad.cancel()
+
     def play_busy(self):
         log("Too long off hook...")
         self.dialtone_timeout()
@@ -99,15 +108,6 @@ class Dialplan(object):
     def play_audio_after_ring(self, soundfile):
         self.done_ringing(soundfile=soundfile)
         self.ring_timer = None
-
-    def on_enter_onhook(self, event):
-        self.cancel_timers()
-        self.tones.off()
-        # We need to cancel because if the key is pressed and the
-        # hook is then pressed, and then the hook is released, the key tone
-        # will not be playing. If the key is then released, the key release event
-        # will happen, but the user did not hear the tone.
-        self.keypad.cancel()
 
     def on_enter_dialtone(self, event):
         self.dialed_number = ''
