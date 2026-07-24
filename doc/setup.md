@@ -44,6 +44,8 @@ mentioned above.
 The protel key/hookswitch units have a 25-pin D connector on them.
 Can we pin these connections out?
 
+keys:
+
 * key 1 - 11 22
 * key 2 - 11 10
 * key 3 - 11 13
@@ -56,6 +58,8 @@ Can we pin these connections out?
 * key * - 23 22
 * key 0 - 23 10
 * key # - 23 13
+  
+row/cols:
 
 * col 1 - pin 22
 * col 2 - pin 10
@@ -64,6 +68,9 @@ Can we pin these connections out?
 * row 2 - pin 12
 * row 3 - pin 25
 * row 4 - pin 23
+
+hookswitch:
+* pin 20 8
 
 # pd patch
 
