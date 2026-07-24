@@ -7,8 +7,14 @@
     group: pi
 - name: copy source
   copy:
-    src: src/opt/futel/src/context.py
-    dest: /opt/futel/src/context.py
+    src: src/opt/futel/src/zoo_context.py
+    dest: /opt/futel/src/zoo_context.py
+    owner: pi
+    group: pi
+- name: copy source
+  copy:
+    src: src/opt/futel/src/dialtone_context.py
+    dest: /opt/futel/src/dialtone_context.py
     owner: pi
     group: pi
 - name: copy source
