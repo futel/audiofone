@@ -31,6 +31,12 @@
     group: pi
 - name: copy source
   copy:
+    src: src/opt/futel/src/menu.py
+    dest: /opt/futel/src/menu.py
+    owner: pi
+    group: pi
+- name: copy source
+  copy:
     src: src/opt/futel/src/dialnumbers.py
     dest: /opt/futel/src/dialnumbers.py
     owner: pi
@@ -51,6 +57,12 @@
   copy:
     src: src/opt/futel/src/audiofone.py
     dest: /opt/futel/src/audiofone.py
+    owner: pi
+    group: pi
+- name: copy assets
+  copy:
+    src: src/opt/futel/src/menu.json
+    dest: /opt/futel/src/menu.json
     owner: pi
     group: pi
 - name: make script executable

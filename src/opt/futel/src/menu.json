@@ -1,0 +1,9 @@
+{
+    "content": "main.wav",
+    "destinations": [
+        {"content": "0_secret.wav"},
+        {"content": "0_secret.wav"},
+        {"content": "0_secret.wav"},
+        {"content": "0_secret.wav"},
+        {"content": "0_secret.wav"},
+        {"content": "5_message.wav"}]}
