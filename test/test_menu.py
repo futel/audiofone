@@ -1,7 +1,10 @@
+import json
+import os
+
 import pytest
 
 import menu
-from menu import get_content
+from menu import get_content, get_menus
 
 
 SAMPLE_MENUS = {
@@ -75,3 +78,28 @@ def test_descending_into_leaf_raises():
     """Navigating past a leaf (no "destinations") is a caller error."""
     with pytest.raises(KeyError):
         get_content([2, 0])
+
+
+# get_menus reads the bundled asset from disk; these tests exercise the real
+# file rather than the patched module-global used by the get_content tests.
+
+def test_get_menus_returns_bundled_asset():
+    """get_menus loads and parses the menu.json shipped next to the module."""
+    asset_path = os.path.join(os.path.dirname(menu.__file__), menu.menu_filename)
+    with open(asset_path) as f:
+        expected = json.load(f)
+    assert get_menus() == expected
+
+
+def test_get_menus_returns_dict_with_content():
+    """The parsed asset is a menu node: a dict with a top-level content key."""
+    result = get_menus()
+    assert isinstance(result, dict)
+    assert "content" in result
+
+
+def test_get_menus_result_is_navigable_by_get_content(monkeypatch):
+    """The loaded asset works as the tree get_content walks."""
+    loaded = get_menus()
+    monkeypatch.setattr(menu, "menus", loaded)
+    assert get_content([]) == loaded["content"]

@@ -13,7 +13,8 @@ def get_menus():
 menus = get_menus()
 
 def get_content(position):
-    """Return menu content to play for position vector."""
+    """Return menu content to play corresponding to position vector."""
+    # eg (1,3,2) => "content" value of 2nd elt of 3rd elt of 1st elt
     node = menus
     for pos in position or []:
         node = node["destinations"][pos]
