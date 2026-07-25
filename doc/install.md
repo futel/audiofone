@@ -12,6 +12,13 @@
 
 To be done once.
 
+## Set up context
+
+This is a kluge to point to the correct code and assets. Un/comment the desired lines in audiofone.py.
+
+- import dialtone_context as context
+- import zoo_context as context
+
 ## Set up content
 
 See [content.md](content.md). Normalize, put sound files on drive, attach drive to pi.
@@ -34,12 +41,7 @@ Run the automated tests, see [test.md](test.md).
   - https://www.raspberrypi.com/documentation/computers/getting-started.html#manual-ssh-setup
   - touch /ssh on the bootfs partition
   - `echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl`
-  - `echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi`
-- (optional) because headless networking is hard to get correct, you can use a usb-to-serial
-  cable from your pc to the pi serial gpio pins:
-  - Add the following 2 lines to config.txt:
-  - `enable_uart=1`
-  - `dtoverlay=disable-bt`
+  - `echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi` # where bootfs is mounted on /run/media/karl`
 
 # Install on destination hardware
 
@@ -51,7 +53,7 @@ Connect the pi to the local network. Update deploy/hosts for correct pibox ip ad
 
 - `ansible-playbook -i deploy/hosts playbook.yml`
 - copy content
-  - XXX
+  - XXX is this covered by content.md?
 - ssh into the box and run alsamixer while doing the tests below
   - `aplay /mnt/futel/5852239851.wav`
   - have the interface and run them on the real hardware

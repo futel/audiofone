@@ -2,7 +2,9 @@
 
 # File location
 
-Sound files must be placed on a mounted USB drive.
+## dialtone_context
+
+If using dialtone_context, sound files must be placed on a mounted USB drive.
 
 * content in root directory
 * filenames in the format NUMBER[_TEXT].wav
@@ -11,6 +13,10 @@ Sound files must be placed on a mounted USB drive.
  * examples
   * 5035555555_monologue.wav
   * 503555555.wav
+
+## zoo_context
+
+If using zoo_context, sound files must be placed in src/opt/futel/audio/zoo before deploying.
 
 ## File format
 

@@ -6,12 +6,12 @@
 
 # Serial terminal
 
-Sometimes it's preferred just to have a [serial terminal](https://elinux.org/RPi_Serial_Connection),
-that you can interact with from another computer via a usb<->serial cable:
+Sometimes it's preferred just to have a [serial terminal](https://elinux.org/RPi_Serial_Connection), that you can interact with from another computer via a usb<->serial cable from your pc to the pi serial gpio pins.
 
-```
-echo enable_uart=1 >> /boot/config.txt
-```
+Add the following 2 lines to config.txt:
+  - `enable_uart=1`
+  - `dtoverlay=disable-bt`
+
 
 ## dev box notes
 

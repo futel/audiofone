@@ -8,11 +8,10 @@ See "Set up local testing environment" in [install.md](install.md).
 
 ```
 source venv/bin/activate
+pytest test
 ```
 
-# Test on pi
-
-## Manual tests
+# Manual tests on the pi
 
 On boot, supervisord will launch the main audiofone.py app and
 puredata.
@@ -20,12 +19,26 @@ puredata.
 * ensure sd card and USB stick are inserted
 * plug in power
 * wait about 15-20 seconds for the pi to boot and mount the usb stick
+
+## Dialtone context
+
+If using dialtone_context:
+
 * lift handset, you should hear dialtone
-  * if you do not, hear a dialtone, you probably didn't wait long enough after boot. Replace the hookswitch and wait a bit longer and then try again.
+  * if you do not hear a dialtone, you probably didn't wait long enough after boot. Replace the hookswitch and wait a bit longer and then try again.
 * dial one of the numbers of a wav file on the usb stick. You should hear ringing and then audio
 * hang up, lift the receiver, do nothing, verify you hear a busy after 15 seconds
 * hang up, dial an invalid number, verify that you hear a fast busy after the first invalid keypress
 * run alsamixer and verify that your preferred volume persists across reboots
+  * XXX what does this mean? Is this a command run in install.md?
+
+## Zoo context
+
+If using zoo_context:
+
+* lift handset, you should hear the first menu
+  * Enter given choices, you should hear content.
+  * Enter invalid choices, you should hear XXX.
 
 # Monitoring
 
