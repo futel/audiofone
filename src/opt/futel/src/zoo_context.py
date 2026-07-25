@@ -9,20 +9,17 @@ from tones import Tones
 audio_directory = "/mnt/futel/"
 
 #menu_soundfile = 'for-more-information-contact-the-operator-from-any-fewtel-phone-or-visit-our-website-at-fewtel-dot-net'
-menu_filename = '7592868_margarets_monologue.wav'
 content_filename = '7592868_margarets_monologue.wav'
-silence_filename = 'one_minute_silence.wav'
 
 states = [
     State(name='onhook'),
-    State(name='menu'),
     State(name='digits'),
     State(name='audio'),
     State(name='busy')]
 
 transitions = [
-    # Play menu on hook up.
-    {'trigger': 'hook_up', 'source': 'onhook', 'dest': 'menu'},
+    # Play first audio on hook up.
+    {'trigger': 'hook_up', 'source': 'onhook', 'dest': 'audio'},
     # Stop all audio and timers on hook down.
     {'trigger': 'hook_down', 'source': '*', 'dest': 'onhook' },
     # Don't change state for these internal transitions. Don't call exit or
@@ -33,9 +30,9 @@ transitions = [
     {'trigger': 'key_release',
      'source': ['onhook', 'busy'],
      'dest': None},
-    # Play key of key press from menu.
+    # Play key of key press from audio.
     {'trigger': 'key_press',
-     'source': ['menu', 'audio'],
+     'source': 'audio',
      'dest': 'digits'},
     # Play content after key release.
     {'trigger': 'key_release',
@@ -43,7 +40,7 @@ transitions = [
      'dest': 'audio'},
     # Play busy.
     {'trigger': 'go_busy',
-     'source': ['menu', 'audio'],
+     'source': 'audio',
      'dest': 'busy' }]
 
 
@@ -78,12 +75,6 @@ class Dialplan(object):
         # event will happen, but the user did not hear the tone.
         self.keypad.cancel()
 
-    def on_enter_menu(self, event):
-        self.play_audio(menu_filename)
-        # Would like to start a nonblocking timer to wait and then
-        # self.audio_process.poll() until the audio process is done, then
-        # self.go_busy(). Would need to cancel the timer on every state change.
-
     def on_enter_digits(self, event):
         """ Stop all audio, play key tone. """
         key = event.kwargs.get('key')
@@ -92,9 +83,12 @@ class Dialplan(object):
 
     def on_enter_audio(self, event):
         key = event.kwargs.get('key')
-        log("Key release => %s" %(key))
+        log("Key release %s" %(key))
         self.audio_off()
         self.play_audio(content_filename)
+        # Would like to start a nonblocking timer to wait and then
+        # self.audio_process.poll() until the audio process is done, then
+        # self.go_busy(). Would need to cancel the timer on every state change.
 
     def on_enter_busy(self, event):
         self.audio_off()
