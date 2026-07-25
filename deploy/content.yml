@@ -1,8 +1,7 @@
 ---
-# XXX Why is this here? These assets are not used from this location?
 - name: copy audio assets
   copy:
-    src: src/opt/futel/src/audio
-    dest: /opt/futel/src/
+    src: src/opt/futel/audio
+    dest: /opt/futel
     owner: pi
     group: pi

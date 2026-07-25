@@ -21,7 +21,12 @@ This is a kluge to point to the correct code and assets. Un/comment the desired 
 
 ## Set up content
 
-See [content.md](content.md). Normalize, put sound files on drive, attach drive to pi.
+Have content.
+
+See [content.md](content.md).
+- normalize
+- put sound files on drive or src/opt/futel/audio
+- attach drive to pi if used
 
 ## Set up local testing environment
 
