@@ -1,3 +1,7 @@
+"""
+Dialplan for a simple menu.
+"""
+
 import random
 import subprocess
 import threading
@@ -86,9 +90,14 @@ class Dialplan(object):
         log("Key release %s" %(key))
         self.audio_off()
         self.play_audio(content_filename)
-        # Would like to start a nonblocking timer to wait and then
+        # We would like to repeat the audio a few times and then play a
+        # busy signal.
+        # Could do this by starting a nonblocking timer to periodically
         # self.audio_process.poll() until the audio process is done, then
-        # self.go_busy(). Would need to cancel the timer on every state change.
+        # do the next step of repeat or busy, then iterate.
+        # Would need to cancel the timer on every state change.
+        # Q&D way to do this is to just have the menu audio include 5 repeats
+        # and then a long busy signal.
 
     def on_enter_busy(self, event):
         self.audio_off()

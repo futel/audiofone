@@ -1,3 +1,7 @@
+"""
+Dialplan for a dialtone with audio destinations after entered multiple digits.
+"""
+
 import random
 import threading
 from transitions import Machine, State
