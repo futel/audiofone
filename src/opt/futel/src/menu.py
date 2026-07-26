@@ -16,5 +16,8 @@ def get_content_name(position, menu_plan):
     # eg (1,3,2) => "content" value of 2nd elt of 3rd elt of 1st elt of root elt
     node = menu_plan
     for pos in position:
-        node = node["destinations"][pos]
+        try:
+            node = node["destinations"][pos]
+        except (KeyError, IndexError): # Invalid key for this node.
+            return None
     return node["content"]

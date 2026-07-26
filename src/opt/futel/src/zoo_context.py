@@ -105,9 +105,19 @@ class Dialplan(object):
         log("Key release %s" %(key))
 
         digit = self.key_to_digit(key)
+        content_name = None
         if digit is not None:
-            self.digit_sequence.append(digit)
-        content_name = menu.get_content_name(self.digit_sequence, menu_plan)
+            # The user entered a usable key, is it valid?
+            #self.digit_sequence.append(digit)
+            digit_sequence = self.digit_sequence + [digit]
+            content_name = menu.get_content_name(digit_sequence, menu_plan)
+            if content_name:
+                # Valid key, update the stored history.
+                self.digit_sequence = self.digit_sequence + [digit]
+        if not content_name:
+            # We didn't get a valid key, use the current content to replay it
+            # and don't update the digit history/
+            content_name = menu.get_content_name(self.digit_sequence, menu_plan)
 
         self.audio_off()
         self.play_audio(content_name)
