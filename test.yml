@@ -1,0 +1,7 @@
+# Partial recipe to deploy during code devlopment.
+---
+- hosts: pibox
+  become: true
+  tasks:
+    - include_tasks: deploy/helpers.yml
+    - include_tasks: deploy/supervisor.yml
