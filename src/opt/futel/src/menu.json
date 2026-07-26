@@ -2,8 +2,8 @@
     "content": "main.wav",
     "destinations": [
         {"content": "0_secret.wav"},
-        {"content": "0_secret.wav"},
-        {"content": "0_secret.wav"},
-        {"content": "0_secret.wav"},
-        {"content": "0_secret.wav"},
-        {"content": "5_message.wav"}]}
+        {"content": "1_past.wav"},
+        {"content": "2_spotlight.wav"},
+        {"content": "3_trivia.wav"},
+        {"content": "4_history.wav"},
+        {"content": "5_future.wav"}]}
