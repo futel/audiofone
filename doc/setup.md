@@ -72,6 +72,37 @@ row/cols:
 hookswitch:
 * pin 20 8
 
+## protel 15-pin D
+
+I cut the connector off, so this is counted with the red wire
+being pin 1:
+
+* key 1 -
+* key 2 -
+* key 3 -
+* key 4 -
+* key 5 -
+* key 6 -
+* key 7 -
+* key 8 -
+* key 9 -
+* key * -
+* key 0 -
+* key # -
+
+rows/cols:
+
+* col 1 =
+* col 2 =
+* col 3 =
+* row 1 =
+* row 2 =
+* row 3 =
+* row 4 = 
+
+hookswitch:
+* pin 4 5
+
 # pd patch
 
 Audio is played through pd.  Python just commands it through
