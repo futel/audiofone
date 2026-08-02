@@ -116,9 +116,9 @@ seen from the board. pin 1 upper left. pin 11 lower left.
 * key 7 - 1 4
 * key 8 - 1 14
 * key 9 - 1 11
-* key * -
-* key 0 -
-* key # -
+* key * - 3 4
+* key 0 - 3 14
+* key # - 3 11
 
 rows/cols:
 
@@ -128,7 +128,11 @@ rows/cols:
 * row 1 = pin 13
 * row 2 = pin 12
 * row 3 = pin 1
-* row 4 = 
+* row 4 = pin 3
+
+hookswitch:
+
+* pin 6 16
 
 # pd patch
 
