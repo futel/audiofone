@@ -103,6 +103,33 @@ rows/cols:
 hookswitch:
 * pin 4 5
 
+## protel 20 pin male header
+
+seen from the board. pin 1 upper left. pin 11 lower left.
+
+* key 1 - 13 4
+* key 2 - 13 14
+* key 3 - 13 11
+* key 4 - 12 4
+* key 5 - 12 14
+* key 6 - 12 11
+* key 7 - 1 4
+* key 8 - 1 14
+* key 9 - 1 11
+* key * -
+* key 0 -
+* key # -
+
+rows/cols:
+
+* col 1 = pin 4
+* col 2 = pin 14
+* col 3 = pin 11
+* row 1 = pin 13
+* row 2 = pin 12
+* row 3 = pin 1
+* row 4 = 
+
 # pd patch
 
 Audio is played through pd.  Python just commands it through
