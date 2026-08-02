@@ -15,13 +15,16 @@
   file:
     path: /mnt/futel
     state: directory
-# Assumes that drive ends up at /dev/sda1
-# This should be true for the first drive connected?
-# Target will fail to boot without drive with this fstab entry?
-- name: mount usb flash drive
-  ansible.posix.mount:
-    path: /mnt/futel
-    src: /dev/sda1
-    fstype: vfat
-    opts: defaults,auto,users,ro,nofail
-    state: mounted
+# XXX We need this if we use a USB drive for the content filesystem,
+#     and fail if we don't have one mounted.
+#     The dialtone context currently needs this.
+# # Assumes that drive ends up at /dev/sda1
+# # This should be true for the first drive connected?
+# # Target will fail to boot without drive with this fstab entry?
+# - name: mount usb flash drive
+#   ansible.posix.mount:
+#     path: /mnt/futel
+#     src: /dev/sda1
+#     fstype: vfat
+#     opts: defaults,auto,users,ro,nofail
+#     state: mounted
