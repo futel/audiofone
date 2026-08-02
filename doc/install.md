@@ -25,8 +25,10 @@ Have content.
 
 See [content.md](content.md).
 - normalize
-- put sound files on drive or src/opt/futel/audio
-- attach drive to pi if used
+- place in appropriate location
+  - on USB drive for dialtone_context
+    - attach drive to pi
+  - in src/opt/futel/audio/zoo for zoo_context
 
 ## Set up local testing environment
 
@@ -44,7 +46,7 @@ Run the automated tests, see [test.md](test.md).
   - https://www.raspberrypi.org/software/operating-systems/
 - enable ssh on the pi with default pi/raspberry login on the boot media
   - https://www.raspberrypi.com/documentation/computers/getting-started.html#manual-ssh-setup
-  - touch /ssh on the bootfs partition
+  - `touch /run/media/karl/bootfs/ssh/ssh # where bootfs is mounted on /run/media/karl`
   - `echo 'pi:$6$kbkDiqxh6zOiT3xc$JRhOaQln5qaL8LZXwQYlQJVrcXlUt5yU0EBvdC5400lYm5r/HWdbA8oHczKNJH270qYGeqiCOHlicS3MDd44G0' > /run/media/karl/bootfs/userconf.txt # where bootfs is mounted on /run/media/karl`
   - `echo 'pi ALL=(ALL) NOPASSWD: ALL' | sudo tee /run/media/karl/rootfs/etc/sudoers.d/pi` # where bootfs is mounted on /run/media/karl`
 
